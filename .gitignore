@@ -13,12 +13,5 @@ compile_commands.json
 temp.log
 temp.errors
 *.ini
+include/okapi
 .d/
-src/
-firmware/
-include/display
-include/pros
-include/api.h
-include/main.h
-common.mk
-project.pros
