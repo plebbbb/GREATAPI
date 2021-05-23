@@ -63,7 +63,7 @@ namespace STL_lib{
       Distance_CenterOfRotation = Dist_to_ctr;
     }
 
-    //Returns us the raw angle traversed by the encoder in radians
+    //Returns us the raw angle traversed by the encoder in double
     double get_radian(){
       return (DegToRad(Encoder.get_value()));
     }
@@ -236,13 +236,13 @@ namespace STL_lib{
         (wheels[ENCODER_Position_LEFT].Distance_CenterOfRotation +
         wheels[ENCODER_Position_RIGHT].Distance_CenterOfRotation);
 
-      radians rel_orientation_change = SRAD().findDiff(raw_global_angle,precycle.angle);
+      double rel_orientation_change = SRAD().findDiff(raw_global_angle,precycle.angle);
 
       //SRAD' built in interval restriction isn't needed here. We need negative intervals.
 
       Coord returncycle(std::pair<double,double>{0,0});
 
-      radians avg_angle = rel_orientation_change/2.0;
+      double avg_angle = rel_orientation_change/2.0;
 
       if (rel_orientation_change == 0){
         returncycle.x = EncoderDistanceValues[2];
@@ -272,13 +272,13 @@ namespace STL_lib{
 
       //Assuming forwards is 0rad, CCW is positive we calculate the relative offset
       //All coords are prior to move fyi.
-      radians rel_orientation_change = new_heading.findDiff(new_heading,precycle.angle);
+      double rel_orientation_change = new_heading.findDiff(new_heading,precycle.angle);
 
       //SRAD' built in interval restriction isn't needed here. We need negative intervals.
 
       Coord returncycle(std::pair<double,double>{0,0});
 
-      radians avg_angle = rel_orientation_change/2.0000000;
+      double avg_angle = rel_orientation_change/2.0000000;
 
       if (rel_orientation_change == 0){
         returncycle.x = EncoderDistanceValues[2];
