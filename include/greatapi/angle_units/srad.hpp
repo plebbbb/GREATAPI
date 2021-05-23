@@ -1,8 +1,12 @@
 /*
 SMART RADIANS
-This is a class providing a self-constraining datatype.
+This is a class providing a self-constraining radian datatype.
 */
 #include "api.h"
+#pragma once
+
+#ifndef SRAD_HPP
+#define SRAD_HPP
 
 /*A smart radian automatically prunes all values to be within the range of 0 - 2PI
 Its a radian, but smart*/
@@ -32,8 +36,8 @@ struct SRAD {
     return diff;
   }
 
-  SMART_radians operator=(double angle_in_radians) {
-    return SMART_radians(angle_in_radians);
+  SRAD operator=(double angle_in_radians) {
+    return SRAD(angle_in_radians);
   }
 
 
@@ -61,9 +65,16 @@ struct SRAD {
 
   /******************************************************************************/
   //Manipulation functions
-  void operator+=(SMART_radians increment) {
+  void operator+=(SRAD increment) {
     value += (double)increment;
     prune();
   }
 
+  void operator-=(SRAD increment) {
+    value -= (double)increment;
+    prune();
+  }
+
 };
+
+#endif
