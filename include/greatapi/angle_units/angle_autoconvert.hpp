@@ -8,6 +8,8 @@ constexpr double operator"" _degrees(long double x) {
   return double(x)*M_PI/180;
 }
 
+
+//conversion function leads to unit confusion, make degree and radian class later
 extern double DegToRad(double x){
   return x*M_PI/180;
 }
