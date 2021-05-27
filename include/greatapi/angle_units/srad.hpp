@@ -8,6 +8,8 @@ This is a class providing a self-constraining radian datatype.
 #ifndef SRAD_HPP
 #define SRAD_HPP
 
+namespace greatapi{
+
 /*A smart radian automatically prunes all values to be within the range of 0 - 2PI
 Its a radian, but smart*/
 struct SRAD {
@@ -75,6 +77,6 @@ struct SRAD {
     prune();
   }
 
-};
-
+  };
+}
 #endif

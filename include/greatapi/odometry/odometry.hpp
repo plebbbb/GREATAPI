@@ -6,7 +6,10 @@
 #ifndef ODOMETRY_HPP
 #define ODOMETRY_HPP
 
-namespace STL_lib{
+//BTW, this is ripped directly from my old code, pls refactor and seperate into files
+
+
+namespace greatapi{
 
 //BasicLibrary is what we will call our library.
 //To refrence anything from the library, we need to have the name followed by a ::, then the requested item.
@@ -22,6 +25,7 @@ namespace STL_lib{
   };
 
   //wrapper class for two IMUs, whose results are then averaged out
+  //NOTE: THIS DOUBLE IMU CODE DOESNT ACTUALLY CANCEL OUT DRIFT. IT ONLY AVERAGES IT. PLS REVISE LATER.
   struct DoubleIMU{
     pros::Imu L; //imu where clockwise rotation yields negative angles
     pros::Imu R; //imu where clockwise rotation yields positive angles
@@ -32,7 +36,7 @@ namespace STL_lib{
     }
     SRAD get_heading(){
       double rawvalue = DegToRad(-(L.get_rotation()));
-      return (double)((rawvalue)+M_PI/2)*1.01056196909;
+      return (double)((rawvalue)+M_PI/2)*1.01056196909; //estimated IMU drift. probably have to be retuned for each IMU. pls add capability to change later.
     }
     SRAD get_heading_AVG(){
       double rawvalue = DegToRad(-(L.get_rotation() + R.get_rotation())/(double(2)));
@@ -198,7 +202,7 @@ namespace STL_lib{
 
       //SRAD' built in interval restriction isn't needed here. We need negative intervals.
 
-      Coord returncycle(std::pair<double,double>{0,0});
+      coord returncycle(std::pair<double,double>{0,0});
 
       double avg_angle = rel_orientation_change/2.0;
 
@@ -240,7 +244,7 @@ namespace STL_lib{
 
       //SRAD' built in interval restriction isn't needed here. We need negative intervals.
 
-      Coord returncycle(std::pair<double,double>{0,0});
+      coord returncycle(std::pair<double,double>{0,0});
 
       double avg_angle = rel_orientation_change/2.0;
 
@@ -276,7 +280,7 @@ namespace STL_lib{
 
       //SRAD' built in interval restriction isn't needed here. We need negative intervals.
 
-      Coord returncycle(std::pair<double,double>{0,0});
+      coord returncycle(std::pair<double,double>{0,0});
 
       double avg_angle = rel_orientation_change/2.0000000;
 

@@ -5,29 +5,31 @@
 #ifndef POSITION_HPP
 #define POSITION_HPP
 
-//combines the two
-struct Position{
-  coord location;
-  SRAD angle;
-  Position(coord vector, SRAD ang):location(vector),angle(ang){};
+namespace greatapi{
 
-  /******************************************************************************/
-  //Conversion functions
-  operator Coord(){
-    return location;
-  }
+  //combines an angle and coordinate,
+  struct Position{
+    coord location;
+    SRAD angle;
+    Position(coord vector, SRAD ang):location(vector),angle(ang){};
 
-  operator SRAD(){
-    return angle;
-  }
+    /******************************************************************************/
+    //Conversion functions
+    operator coord(){
+      return location;
+    }
 
-  void operator+=(Coord change) {
-    location+=change;
-    get_length();
-  }
+    operator SRAD(){
+      return angle;
+    }
+
+    void operator+=(coord change) {
+      location+=change;
+      location.get_length();
+    }
+
+  };
 
 }
-
-
 
 #endif

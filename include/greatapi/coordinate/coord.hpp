@@ -1,28 +1,30 @@
-//Standard Coord datatype, holds Coords of arbritrary vector in R2
+//Standard coord datatype, holds coords of arbritrary vector in R2
 //provides transformation functions as well
 
 #include "api.h"
 #include "greatapi/angle_units/SRAD.hpp"
 #pragma once
 
-#ifndef COORD_HPP
-#define COORD_HPP
+#ifndef coord_HPP
+#define coord_HPP
 
-struct Coord {
+namespace greatapi{
+
+struct coord {
 		double x;
 		double y;
 		double length;
-		Coord(std::pair<double, double> set) :x(set.first), y(set.second) { get_length(); }
-		Coord(std::tuple<double, double> set) :x(std::get<0>(set)), y(std::get<1>(set)) { get_length(); }
+		coord(std::pair<double, double> set) :x(set.first), y(set.second) { get_length(); }
+		coord(std::tuple<double, double> set) :x(std::get<0>(set)), y(std::get<1>(set)) { get_length(); }
 
 		//copy constructor
-		Coord operator=(std::pair<double, double> set) {
-			return Coord(set);
+		coord operator=(std::pair<double, double> set) {
+			return coord(set);
 		}
-		Coord() { x = 0; y = 0; }
+		coord() { x = 0; y = 0; }
 
-		//relative Coord calculation from two position
-		Coord(Coord initial, Coord final):x(final.x - initial.x),y(final.y - initial.y){
+		//relative coord calculation from two position
+		coord(coord initial, coord final):x(final.x - initial.x),y(final.y - initial.y){
 			get_length();
 		}
 
@@ -34,13 +36,13 @@ struct Coord {
 			y = - sin(offset)*y + cos(offset)*y;
 		}
 
-		Coord transform_matrix(SRAD offset){
+		coord transform_matrix(SRAD offset){
 			double xe = double(cos((double)offset)*(double)x + sin((double)offset)*(double)y);
 			double ye = double(cos((double)offset)*(double)y - sin((double)offset)*(double)x);
-			return Coord(std::pair<double,double>{xe,ye});
+			return coord(std::pair<double,double>{xe,ye});
 		}
 
-		//updates length of Coord
+		//updates length of coord
 		double get_length() {
 			length = double(sqrt(x * x + y * y));
 			return length;
@@ -56,24 +58,25 @@ struct Coord {
 			const void * tmp = static_cast<const void*>(this);
 			std::stringstream ss;
 			ss << tmp;
-			return "Coord: " + ss.str() + "\tx=" + std::to_string(x.value) +
+			return "coord: " + ss.str() + "\tx=" + std::to_string(x.value) +
 								"\ty=" + std::to_string(y.value) + "\tlength=" + std::to_string(length.value) + "\n";
 		}
 */
 		/******************************************************************************/
 		//Manipulation functions
-		/*Remember that an conversion from pairs({x,y}) to Coord can automatically happen
-		Using that instead of an actual Coord type is also perfectly legal*/
-		void operator+=(Coord change) {
+		/*Remember that an conversion from pairs({x,y}) to coord can automatically happen
+		Using that instead of an actual coord type is also perfectly legal*/
+		void operator+=(coord change) {
 			x += change.x;
 			y += change.y;
 			get_length();
 		}
 
-		void operator-=(Coord change) {
+		void operator-=(coord change) {
 			x -= change.x;
 			y -= change.y;
 			get_length();
 		}
 	};
+}
 #endif
