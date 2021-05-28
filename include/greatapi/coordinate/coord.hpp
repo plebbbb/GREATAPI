@@ -14,14 +14,15 @@ struct coord {
 		double x;
 		double y;
 		double length;
+
 		coord(std::pair<double, double> set) :x(set.first), y(set.second) { get_length(); }
 		coord(std::tuple<double, double> set) :x(std::get<0>(set)), y(std::get<1>(set)) { get_length(); }
+		coord() { x = 0; y = 0; length = 0;}
 
 		//copy constructor
 		coord operator=(std::pair<double, double> set) {
 			return coord(set);
 		}
-		coord() { x = 0; y = 0; }
 
 		//relative coord calculation from two position
 		coord(coord initial, coord final):x(final.x - initial.x),y(final.y - initial.y){

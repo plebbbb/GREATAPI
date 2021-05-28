@@ -8,10 +8,10 @@
 namespace greatapi{
 
   //combines an angle and coordinate,
-  struct Position{
+  struct position{
     coord location;
     SRAD angle;
-    Position(coord vector, SRAD ang):location(vector),angle(ang){};
+    position(coord vector, SRAD ang):location(vector),angle(ang){};
 
     /******************************************************************************/
     //Conversion functions

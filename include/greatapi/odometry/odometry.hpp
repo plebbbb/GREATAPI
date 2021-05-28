@@ -1,310 +1,87 @@
 //A header guard
 #pragma once
 #include "greatapi/basic_datatypes.hpp"
-#include "api.h"
+#include "greatapi/sensors/twheel.hpp"
+#include "greatapi/odometry/rotation_odom.hpp"
+#include "main.h"
 
-#ifndef ODOMETRY_HPP
-#define ODOMETRY_HPP
+#ifndef ODOM_FULL_HPP
+#define ODOM_FULL_HPP
 
-//BTW, this is ripped directly from my old code, pls refactor and seperate into files
-
-
+//attempted odometry rewrite
 namespace greatapi{
+  namespace odometry{
+    /*
+      This struct operates on a standard coordinate grid relative to the bot.
+      This means that positive Y is the axis that is 90 degrees counterclockwise from positive X.
+      Angles start from zero at the positive X axis, and increase in the counterclockwise direction.
+      You need an encoder measuring each of these axises, making sure that both of them are positive when moving in the positive direction of the bot
+    */
+    struct odometry {
+      TWheel* Xaxis;
+      TWheel* Yaxis;
+      double X_toCOR; // distance of X axis tracking wheel to center of rotation
+      double Y_toCOR; // distance of Y axis tracking wheel to center of rotation
+      odom_rotation* rotationcalc;
+      double encoderangoffset; //angle between the forwards direction of the bot and encoder measured positive Y axis. Positive when pos Y axis CCW of forwards direction, otherwise negative
+      double globaloffset; //angle between encoder measured positive X axis and the forwards direction of the bot. Positive when forwards is CCW of X axis.
 
-//BasicLibrary is what we will call our library.
-//To refrence anything from the library, we need to have the name followed by a ::, then the requested item.
-//For example, BasicLibrary::Somefunction() would work, Somefunction() would not work.
-  struct DeadWheel;
-  struct OdometryWheels;
-  struct OdometryComputer;
+      /*
+        explaining forwardsoffset and globaloffset
 
-  enum ENCODER_Position{
-    ENCODER_Position_LEFT = 0,
-    ENCODER_Position_RIGHT = 1,
-    ENCODER_Position_BACK = 2
-  };
+        the heading which the global coordinates use is measured as the angle between the forwards direction of the bot to the global X axis
+        in order to rotate the local coordinate grid to the global axis, we need to rotate by the angle between pairs of local axises and global axises
+        so that both axises are parallel with each other. This would let us add the coordinates to each other. We can apply an offset to the heading
+        indicated by the global coordinates to get the angle between local and global coordinate grids.
 
-  //wrapper class for two IMUs, whose results are then averaged out
-  //NOTE: THIS DOUBLE IMU CODE DOESNT ACTUALLY CANCEL OUT DRIFT. IT ONLY AVERAGES IT. PLS REVISE LATER.
-  struct DoubleIMU{
-    pros::Imu L; //imu where clockwise rotation yields negative angles
-    pros::Imu R; //imu where clockwise rotation yields positive angles
-    DoubleIMU(int CCWP, int CWP):L(CCWP),R(CWP){};
-    bool is_calibrating(){
-      if(!L.is_calibrating() && !R.is_calibrating()) return false;
-      return true;
-    }
-    SRAD get_heading(){
-      double rawvalue = DegToRad(-(L.get_rotation()));
-      return (double)((rawvalue)+M_PI/2)*1.01056196909; //estimated IMU drift. probably have to be retuned for each IMU. pls add capability to change later.
-    }
-    SRAD get_heading_AVG(){
-      double rawvalue = DegToRad(-(L.get_rotation() + R.get_rotation())/(double(2)));
-      return (double)((rawvalue)+M_PI/2);
-    }
-  };
+        globaloffset does this for us, as it's the offset from the forwards direction of the bot to the local X axis.
 
-  //An ADI encoder wrapper that directly outputs distance values
-  struct DeadWheel{
-    pros::ADIEncoder Encoder; //The shaft encoder
-    double WheelRadius; //The radius of the deadwheel
-    double Distance_CenterOfRotation; //Distance to center of rotation
-    int encoderTotal = 0; // Stores total encoder value
+        there is also the edge case where the local Y axis isnt alligned with the forwards direction. Globaloffset doesn't account for this
+        so we can add another variable which accounts for the Y axis being offset from the forwards direction.
 
-    //Constructor if the encoder is plugged directly into the V5 Brain ADI ports
-    DeadWheel(int portA, int portB, bool direction, double Diameter, double Dist_to_ctr):
-    Encoder(portA,portB,direction)
-    {
-      WheelRadius = double((double)Diameter/2.000000);
-      Distance_CenterOfRotation = Dist_to_ctr;
-    }
+        This variable is encoderangoffset.
+      */
 
-    //Constructor if the encoder is plugged into an ADI Expander
-    DeadWheel(pros::ext_adi_port_tuple_t portAB, bool direction, double Diameter, double Dist_to_ctr):
-    Encoder(portAB,direction)
-    {
-      WheelRadius = double((double)Diameter/2.000000);
-      Distance_CenterOfRotation = Dist_to_ctr;
-    }
+      //NOTE: your all params should be constructed with the new keyword. This is because you need a static memory location for polymorphisism to work.
+      odometry(TWheel* X, TWheel* Y, odom_rotation* rotation){
+        Xaxis = X;
+        Yaxis = Y;
+        rotationcalc = rotation;
+      }
 
-    //Returns us the raw angle traversed by the encoder in double
-    double get_radian(){
-      return (DegToRad(Encoder.get_value()));
-    }
+      position calculateposition(position initial){
+          //get heading, subtract by previous angle to get relative angle change
+          SRAD newang = rotationcalc -> get_heading();
+          double relAngleChange = initial.angle.findDiff(initial.angle, newang);
 
-    //Returns us the effective distance traveled by the attached wheel
-    double get_distance(){
-      return double((double)WheelRadius*(double)get_radian());
-    }
+          //local coordinate object to be used for transforms
+          coord localcoordinate = std::pair<double,double>{0,0};
 
-    //get_distance. Note that this resets the encoder as well. Do not call this multiple times per cycle
-    double get_distance_AUTORESET(){
-      double val = get_distance();
-      encoderTotal += get_distance(); // Add encoder's value to a total
-      reset();
-      return val;
-    }
+          //if no angle change, just add coords
+          if(relAngleChange == 0){
+            localcoordinate.x += Xaxis -> get_distance();
+            localcoordinate.y += Yaxis -> get_distance();
+          }
 
-    // Returns radian value of the encoder total
-    double get_radianTotal(){
-      return DegToRad((encoderTotal));
-    }
+          //if angle change, get arc lengths and transform
+          else {
+            localcoordinate.y = double(2.0*sin(relAngleChange/2) *
+            ((Yaxis -> get_distance()/relAngleChange) + Y_toCOR));
 
-    // Returns total distance via the encoder total
-    double get_distanceTotal(){
-      return double((double)WheelRadius*(double)get_radianTotal());
-    }
+            localcoordinate.x = double(2.0*sin(relAngleChange/2) *
+            ((Xaxis -> get_distance()/relAngleChange) + X_toCOR));
 
-    void reset(){
-      Encoder.reset();
-    }
-  };
+            localcoordinate = localcoordinate.transform_matrix(-((double)initial.angle+(relAngleChange/2)-(globaloffset + encoderangoffset)));
+          }
 
-  //This is a struct meant to hold the DeadWheels in an convienent to move container
-  //Treat it like an array that has built in functions. It can literally do the [] and the {}
+          //update initial position with new coordinate and angle
+          initial.location += localcoordinate;
+          initial.angle = newang;
 
-  struct OdometryWheels{
-    //This struct is constructed with bracket notation.
-    //For example, DeadWheel a = {LEFT, RIGHT, REAR};
-    DeadWheel LEFT;
-    DeadWheel RIGHT;
-    DeadWheel BACK;
-//    OdometryWheels(DeadWheel L, DeadWheel R, DeadWheel B):LEFT(L),RIGHT(R),BACK(B){}
-
-    //This approach only measures the encoder values once per cycle, ensuring synchronization of measurements
-    std::unique_ptr<std::array<double, 3>> get_distances(){
-      return std::unique_ptr<std::array<double, 3>>(
-        new std::array<double, 3> {
-          LEFT.get_distance_AUTORESET(),
-          RIGHT.get_distance_AUTORESET(),
-          BACK.get_distance_AUTORESET()
+          return initial;
         }
-      );
-    }
-
-    std::array<double,3> get_distances_nonpointer(){
-      return std::array<double, 3>{
-        LEFT.get_distance_AUTORESET(),
-        RIGHT.get_distance_AUTORESET(),
-        BACK.get_distance_AUTORESET()
-      };
-    }
-
-    // Returns array of total encoder distances
-    std::array<double,3> get_distancesTotal_nonpointer(){
-      return std::array<double, 3>{
-        LEFT.get_distanceTotal(),
-        RIGHT.get_distanceTotal(),
-        BACK.get_distanceTotal()
-      };
-    }
-    /*This function basically takes control of the [] thing you see in arrays.
-    This turns the object into a psudo-array thats basically an array.
-    Usable values are index 0, 1 2. or 'ENCODER_Position_LEFT', right and center.
-    FYI, this doesn't reset, so you will have to manual reset with the reset function.*/
-    double DistOf(ENCODER_Position index){
-        switch(index){
-            case ENCODER_Position_LEFT: return LEFT.get_distance();
-            case ENCODER_Position_RIGHT: return RIGHT.get_distance();
-            case ENCODER_Position_BACK: return BACK.get_distance();
-        };
-    }
-
-    DeadWheel operator[] (ENCODER_Position index){
-      switch(index){
-          case ENCODER_Position_LEFT: return LEFT;
-          case ENCODER_Position_RIGHT: return RIGHT;
-          case ENCODER_Position_BACK: return BACK;
-      };
-    }
-
-    void reset(){
-      LEFT.reset();
-      RIGHT.reset();
-      BACK.reset();
-    }
-  };
-
-
-  //Odometry class that actually does the calculations
-  struct OdometryComputer{
-    OdometryWheels wheels;
-
-    /******************************************************************************/
-    //Constructors:
-    OdometryComputer(OdometryWheels wheelset):wheels(wheelset){}
-
-
-    /******************************************************************************/
-    //Utility functions
-    /*The edge case of a division by zero distance is only observed in odometry
-    Hence, we have this janky internal function to deal with these situations*/
-    double divzerocomp(double numerator, double denomator){
-      if (numerator == 0 || denomator == 0) return 0.0;
-      return numerator/denomator;
-    }
-
-
-
-    /******************************************************************************/
-    //Primary functions
-    //original odometry function. verfied working
-    Position cycle(Position precycle){
-      std::array EncoderDistanceValues = wheels.get_distances_nonpointer();
-      //its a 50/50 that get_distances_nonpointer works
-
-      //Assuming forwards is 0rad, CCW is positive we calculate the relative offset
-      //All coords are prior to move fyi.
-      double rel_orientation_change =
-      (EncoderDistanceValues[0]-EncoderDistanceValues[1]) /
-      (wheels[ENCODER_Position_LEFT].Distance_CenterOfRotation +
-        wheels[ENCODER_Position_RIGHT].Distance_CenterOfRotation);
-
-      //SRAD' built in interval restriction isn't needed here. We need negative intervals.
-
-      coord returncycle(std::pair<double,double>{0,0});
-
-      double avg_angle = rel_orientation_change/2.0;
-
-      if (rel_orientation_change == 0){
-        returncycle.x = EncoderDistanceValues[2];
-        returncycle.y = EncoderDistanceValues[1];
-      } else {
-        returncycle.y = double(2.0*sin(avg_angle) *
-        ((EncoderDistanceValues[1]/rel_orientation_change) +
-        wheels[ENCODER_Position_RIGHT].Distance_CenterOfRotation));
-
-        returncycle.x = double(2.0*sin(avg_angle) *
-        ((EncoderDistanceValues[2]/rel_orientation_change) +
-        wheels[ENCODER_Position_BACK].Distance_CenterOfRotation));
-      }
-
-      returncycle = returncycle.transform_matrix(-(precycle.angle+avg_angle-(M_PI/2)));
-
-      precycle += returncycle;
-      precycle.angle.value -= rel_orientation_change;
-
-      return precycle;
-    }
-
-
-    //Candidate revision of prexisting odom function. Main improvement is less compounding error from adding angles. To be verified
-    Position cycleV2(Position precycle){
-      std::array EncoderDistanceValues = wheels.get_distances_nonpointer(); //compute all distances, reset odometry wheels, append delta distance to total dist
-      std::array EncoderDistanceTotalValues = wheels.get_distancesTotal_nonpointer(); //return array of total distances including new dist from get_distance_nonpointer
-
-      //Assuming forwards is 0rad, CCW is positive we calculate the relative offset
-      //All coords are prior to move fyi.
-      SRAD raw_global_angle =
-        (EncoderDistanceTotalValues[0]-EncoderDistanceTotalValues[1]) /
-        (wheels[ENCODER_Position_LEFT].Distance_CenterOfRotation +
-        wheels[ENCODER_Position_RIGHT].Distance_CenterOfRotation);
-
-      double rel_orientation_change = SRAD().findDiff(raw_global_angle,precycle.angle);
-
-      //SRAD' built in interval restriction isn't needed here. We need negative intervals.
-
-      coord returncycle(std::pair<double,double>{0,0});
-
-      double avg_angle = rel_orientation_change/2.0;
-
-      if (rel_orientation_change == 0){
-        returncycle.x = EncoderDistanceValues[2];
-        returncycle.y = EncoderDistanceValues[1];
-      } else {
-        returncycle.y = double(2.0*sin(avg_angle) *
-        ((EncoderDistanceValues[1]/rel_orientation_change) +
-        wheels[ENCODER_Position_RIGHT].Distance_CenterOfRotation));
-
-        returncycle.x = double(2.0*sin(avg_angle) *
-        ((EncoderDistanceValues[2]/rel_orientation_change) +
-        wheels[ENCODER_Position_BACK].Distance_CenterOfRotation));
-      }
-
-      returncycle = returncycle.transform_matrix(-(precycle.angle+avg_angle-(M_PI/2)));
-
-      precycle += returncycle;
-      precycle.angle = raw_global_angle;
-
-      return precycle;
-    }
-
-    //IMU odometry function
-    Position cycleIMU(Position precycle, SRAD new_heading){
-      std::array EncoderDistanceValues = wheels.get_distances_nonpointer();
-      //its a 50/50 that get_distances_nonpointer works
-
-      //Assuming forwards is 0rad, CCW is positive we calculate the relative offset
-      //All coords are prior to move fyi.
-      double rel_orientation_change = new_heading.findDiff(new_heading,precycle.angle);
-
-      //SRAD' built in interval restriction isn't needed here. We need negative intervals.
-
-      coord returncycle(std::pair<double,double>{0,0});
-
-      double avg_angle = rel_orientation_change/2.0000000;
-
-      if (rel_orientation_change == 0){
-        returncycle.x = EncoderDistanceValues[2];
-        returncycle.y = EncoderDistanceValues[1];
-      } else {
-        returncycle.y = double(2.0*sin(avg_angle) *
-        ((EncoderDistanceValues[1]/rel_orientation_change) +
-        wheels[ENCODER_Position_RIGHT].Distance_CenterOfRotation));
-
-        returncycle.x = double(2.0*sin(avg_angle) *
-        ((EncoderDistanceValues[2]/rel_orientation_change) +
-        wheels[ENCODER_Position_BACK].Distance_CenterOfRotation));
-      }
-
-      returncycle = returncycle.transform_matrix(-(precycle.angle+avg_angle-(M_PI/2)));
-
-      precycle += returncycle;
-      precycle.angle.value = new_heading;
-
-      return precycle;
-    }
-  };
+    };
+  }
 }
 
 #endif
