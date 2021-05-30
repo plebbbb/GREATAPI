@@ -76,7 +76,7 @@ namespace greatapi{
       };
 
       SRAD get_heading_raw(){
-        return SRAD((Left->get_distance() - Right->get_distance())/rotationalDist);
+        return SRAD((Right->get_distance() - Left->get_distance())/rotationalDist);
       }
     };
   }

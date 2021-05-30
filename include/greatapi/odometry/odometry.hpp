@@ -71,7 +71,7 @@ namespace greatapi{
             localcoordinate.x = double(2.0*sin(relAngleChange/2) *
             ((Xaxis -> get_distance()/relAngleChange) + X_toCOR));
 
-            localcoordinate = localcoordinate.transform_matrix(-((double)initial.angle+(relAngleChange/2)-(globaloffset + encoderangoffset)));
+            localcoordinate = localcoordinate.transform_matrix(-((double)initial.angle+(relAngleChange/2) - globaloffset + encoderangoffset));
           }
 
           //update initial position with new coordinate and angle
