@@ -20,11 +20,11 @@ namespace greatapi{
     struct odometry {
       TWheel* Xaxis;
       TWheel* Yaxis;
-      double X_toCOR; // distance of X axis tracking wheel to center of rotation
-      double Y_toCOR; // distance of Y axis tracking wheel to center of rotation
+      distance X_toCOR; // distance of X axis tracking wheel to center of rotation, right is positive
+      distance Y_toCOR; // distance of Y axis tracking wheel to center of rotation, forwards is positive
       odom_rotation* rotationcalc;
-      double encoderangoffset; //angle between the forwards direction of the bot and encoder measured positive Y axis. Positive when pos Y axis CCW of forwards direction, otherwise negative
-      double globaloffset; //angle between encoder measured positive X axis and the forwards direction of the bot. Positive when forwards is CCW of X axis.
+      double encoderangoffset; //angle between the forwards direction of the bot and encoder measured positive Y axis. //TBD: figure out when measurement is positive/negative(left or right encoder)
+      double globaloffset; //angle between encoder measured positive X axis and the forwards direction of the bot. //above tbd for this line as well
 
       /*
         explaining forwardsoffset and globaloffset
@@ -43,10 +43,15 @@ namespace greatapi{
       */
 
       //NOTE: your all params should be constructed with the new keyword. This is because you need a static memory location for polymorphisism to work.
-      odometry(TWheel* X, TWheel* Y, odom_rotation* rotation){
+      odometry(TWheel* X, distance X_to_ctr, TWheel* Y, distance Y_to_ctr, odom_rotation* rotation){
         Xaxis = X;
         Yaxis = Y;
         rotationcalc = rotation;
+        //default setup, assumes that tracking wheels are parallel with forwards direction, and that the back of the bot is aganist the X axis wall
+        encoderangoffset = 0;
+        globaloffset = M_PI/2;
+        X_toCOR = X_to_ctr;
+        Y_toCOR = Y_to_ctr;
       }
 
       position calculateposition(position initial){

@@ -13,7 +13,7 @@ namespace greatapi{
   struct TWheel{
     distance WRadius;
     TWheel(distance WR):WRadius(WR){};
-    virtual distance get_distance();
+    virtual distance get_distance() = 0;
   };
 
   //old V4 ADI encoder tracking wheel

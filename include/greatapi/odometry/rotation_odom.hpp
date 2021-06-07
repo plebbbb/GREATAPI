@@ -15,7 +15,7 @@ namespace greatapi{
       double DOffset = 0; //drift offset. This is a hard offset which is designed to be used for on-the-fly odom resets at known headings. this is in radians.
       odom_rotation(){}
 
-      virtual SRAD get_heading_raw(); //pure virtual function. Defined by each odometry system.
+      virtual SRAD get_heading_raw() = 0; //pure virtual function. Defined by each odometry system.
 
       //gets raw heading and applies calibration offsets to it.
       SRAD get_heading(){
