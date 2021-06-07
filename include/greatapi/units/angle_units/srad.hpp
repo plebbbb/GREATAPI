@@ -1,8 +1,9 @@
 /*
 SMART RADIANS
-This is a class providing a self-constraining radian datatype.
+This is a class providing a self-constraining radian datatype. It is seperate from the unit series due to the various constraints it possesses
 */
 #include "api.h"
+#include "universal_angle.hpp"
 #pragma once
 
 #ifndef SRAD_HPP
@@ -18,30 +19,10 @@ struct SRAD {
   //Constructors:
   SRAD() { value = 0; } //default constructor, if you don't make it anything it's 0 by default
 
-  SRAD(double angle_in_radians) {
+  SRAD(angle angle_in_radians) {
     value = angle_in_radians;
     prune();
   }
-
-  // When given two smart radians a and b, returns the difference b - a expressed as a radians diff in the range [-PI, PI)
-  double findDiff(SRAD a, SRAD b) {
-    double diff(b.value);
-    diff -= a.value;
-
-    if (diff >= M_PI) {
-      diff -= M_PI * 2;
-    }
-    if (diff < M_PI * (-1)) {
-      diff += M_PI * 2;
-    }
-
-    return diff;
-  }
-
-  SRAD operator=(double angle_in_radians) {
-    return SRAD(angle_in_radians);
-  }
-
 
   /******************************************************************************/
   //Utility functions
@@ -64,6 +45,10 @@ struct SRAD {
     return value;
   }
 
+  operator angle() {
+    prune();
+    return value;
+  }
 
   /******************************************************************************/
   //Manipulation functions
@@ -77,6 +62,13 @@ struct SRAD {
     prune();
   }
 
+  SRAD operator+(SRAD b) {
+    return SRAD(value + b.value);
+  }
+
+  SRAD operator-(SRAD b) {
+    return SRAD(value - b.value);
+  }
   };
 }
 #endif

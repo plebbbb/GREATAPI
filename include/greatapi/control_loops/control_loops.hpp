@@ -1,6 +1,7 @@
 //A header guard
 #pragma once
 #include "api.h"
+#include "greatapi/basic_datatypes.hpp"
 
 #ifndef CONTROL_LOOP_HPP
 #define CONTROL_LOOP_HPP

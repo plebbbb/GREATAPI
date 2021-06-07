@@ -52,13 +52,13 @@ namespace greatapi{
       position calculateposition(position initial){
           //get heading, subtract by previous angle to get relative angle change
           SRAD newang = rotationcalc -> get_heading();
-          double relAngleChange = initial.angle.findDiff(initial.angle, newang);
+          double relAngleChange = findDiff(initial.angle, newang);
 
           //local coordinate object to be used for transforms
-          coord localcoordinate = std::pair<double,double>{0,0};
+          coord localcoordinate = std::pair<distance,distance>{0,0};
 
           //if no angle change, just add coords
-          if(relAngleChange == 0){
+          if(relAngleChange == angle(0)){
             localcoordinate.x += Xaxis -> get_distance();
             localcoordinate.y += Yaxis -> get_distance();
           }
@@ -66,16 +66,16 @@ namespace greatapi{
           //if angle change, get arc lengths and transform
           else {
             localcoordinate.y = double(2.0*sin(relAngleChange/2) *
-            ((Yaxis -> get_distance()/relAngleChange) + Y_toCOR));
+            (((double)Yaxis -> get_distance()/relAngleChange) + Y_toCOR));
 
             localcoordinate.x = double(2.0*sin(relAngleChange/2) *
-            ((Xaxis -> get_distance()/relAngleChange) + X_toCOR));
+            (((double)Xaxis -> get_distance()/relAngleChange) + X_toCOR));
 
-            localcoordinate = localcoordinate.transform_matrix(-((double)initial.angle+(relAngleChange/2) - globaloffset + encoderangoffset));
+            localcoordinate = localcoordinate.transform_matrix(angle(-((double)initial.angle+(relAngleChange/2) - globaloffset + encoderangoffset)));
           }
 
           //update initial position with new coordinate and angle
-          initial.location += localcoordinate;
+          initial += localcoordinate;
           initial.angle = newang;
 
           return initial;

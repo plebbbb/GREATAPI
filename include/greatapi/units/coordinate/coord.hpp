@@ -2,7 +2,9 @@
 //provides transformation functions as well
 
 #include "api.h"
-#include "greatapi/angle_units/SRAD.hpp"
+#include "greatapi/units/angle_units/srad.hpp"
+#include "greatapi/units/distance_units/universal_distance.hpp"
+
 #pragma once
 
 #ifndef coord_HPP
@@ -11,16 +13,17 @@
 namespace greatapi{
 
 struct coord {
-		double x;
-		double y;
-		double length;
+		distance x;
+		distance y;
+		distance length;
 
-		coord(std::pair<double, double> set) :x(set.first), y(set.second) { get_length(); }
-		coord(std::tuple<double, double> set) :x(std::get<0>(set)), y(std::get<1>(set)) { get_length(); }
+		coord(distance xd, distance yd) :x(xd), y(yd) { get_length(); }
+		coord(std::pair<distance, distance> set) :x(set.first), y(set.second) { get_length(); }
+		coord(std::tuple<distance, distance> set) :x(std::get<0>(set)), y(std::get<1>(set)) { get_length(); }
 		coord() { x = 0; y = 0; length = 0;}
 
 		//copy constructor
-		coord operator=(std::pair<double, double> set) {
+		coord operator=(std::pair<distance, distance> set) {
 			return coord(set);
 		}
 
@@ -40,12 +43,12 @@ struct coord {
 		coord transform_matrix(SRAD offset){
 			double xe = double(cos((double)offset)*(double)x + sin((double)offset)*(double)y);
 			double ye = double(cos((double)offset)*(double)y - sin((double)offset)*(double)x);
-			return coord(std::pair<double,double>{xe,ye});
+			return coord(std::pair<distance,distance>{xe,ye});
 		}
 
 		//updates length of coord
-		double get_length() {
-			length = double(sqrt(x * x + y * y));
+		distance get_length() {
+			length = sqrt( (x * x) + (y * y)); //I have no idea if bedmas is still legal, assume it is not.
 			return length;
 		}
 
@@ -77,6 +80,21 @@ struct coord {
 			x -= change.x;
 			y -= change.y;
 			get_length();
+		}
+
+		coord operator+(coord change) {
+			return coord((x+change.x), (y+change.y));
+		}
+
+		coord operator-(coord change) {
+			return coord((x-change.x), (y-change.y));
+		}
+
+		//DOT PRODUCT OPERATOR
+		//You learn this in 11ap/12 calc. The most frequent usage you will see will be to get the angle between two vectors
+		//see documentation site on how this works.
+		double operator*(coord change) {
+			return (x*change.x) + (y*change.y);
 		}
 	};
 }

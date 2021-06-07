@@ -24,7 +24,7 @@ namespace greatapi{
 
       //sets new DOffset based on the difference between the real angle and the IMU reported angle.
       void applyOffset(SRAD real){
-        DOffset = real.findDiff(get_heading_raw(),real); //subtracts getHeading() from real angle. Thus, Doffset+getHeading = real angle.
+        DOffset = findDiff(get_heading_raw(),real); //subtracts getHeading() from real angle. Thus, Doffset+getHeading = real angle.
       }
     };
 
@@ -46,7 +46,7 @@ namespace greatapi{
       IMU_odom_rotation(int port, double driftcompensationfac):Inertial(port),DFC(driftcompensationfac),odom_rotation(){};
 
       SRAD get_heading_raw() {
-        return SRAD(DegToRad((double)Inertial.get_heading())*DFC); //turn raw angle into radians, then constrain to 0-2PI interval via SRAD constructor
+        return SRAD(degrees(((double)Inertial.get_heading())*DFC)); //turn raw angle into radians, then constrain to 0-2PI interval via SRAD constructor
       }
 
     };
@@ -67,16 +67,16 @@ namespace greatapi{
     struct TWheel_odom_rotation : public odom_rotation{
       TWheel* Left; //pointer for polymorphisism between ADI encoders and new V5 rotation sensor tracking wheels
       TWheel* Right;
-      double rotationalDist; //measured distances between the tracking wheels, perpendicular to their normal rotation direction.
+      distance rotationalDist; //measured distances between the tracking wheels, perpendicular to their normal rotation direction.
 
       //NOTE: you should be constructing TWheels with the new keyword, so that they exist in their own memory space.
-      TWheel_odom_rotation(TWheel* L, TWheel* R, double dist_btwn):rotationalDist(dist_btwn),odom_rotation(){
+      TWheel_odom_rotation(TWheel* L, TWheel* R, distance dist_btwn):rotationalDist(dist_btwn),odom_rotation(){
         Left = L;
         Right = R;
       };
 
       SRAD get_heading_raw(){
-        return SRAD((Right->get_distance() - Left->get_distance())/rotationalDist);
+        return SRAD(double((Right->get_distance() - Left->get_distance())/rotationalDist));
       }
     };
   }
