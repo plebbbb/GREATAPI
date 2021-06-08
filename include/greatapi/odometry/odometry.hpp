@@ -25,7 +25,8 @@ namespace greatapi{
       odom_rotation* rotationcalc;
       double encoderangoffset; //angle between the forwards direction of the bot and encoder measured positive Y axis. //TBD: figure out when measurement is positive/negative(left or right encoder)
       double globaloffset; //angle between encoder measured positive X axis and the forwards direction of the bot. //above tbd for this line as well
-
+      distance Xlast = 0;
+      distance Ylast = 0;
       /*
         explaining forwardsoffset and globaloffset
 
@@ -62,19 +63,22 @@ namespace greatapi{
           //local coordinate object to be used for transforms
           coord localcoordinate = std::pair<distance,distance>{0,0};
 
+          distance Xtravel = Xaxis -> get_distance() - Xlast; //the distance sensors return sum values. We need net change from previous iteration.
+          distance Ytravel = Yaxis -> get_distance() - Ylast;
+
           //if no angle change, just add coords
           if(relAngleChange == angle(0)){
-            localcoordinate.x += Xaxis -> get_distance();
-            localcoordinate.y += Yaxis -> get_distance();
+            localcoordinate.x += Xtravel;
+            localcoordinate.y += Ytravel;
           }
 
           //if angle change, get arc lengths and transform
           else {
             localcoordinate.y = double(2.0*sin(relAngleChange/2) *
-            (((double)Yaxis -> get_distance()/relAngleChange) + Y_toCOR));
+            (((double)Ytravel/relAngleChange) + Y_toCOR));
 
             localcoordinate.x = double(2.0*sin(relAngleChange/2) *
-            (((double)Xaxis -> get_distance()/relAngleChange) + X_toCOR));
+            (((double)Xtravel/relAngleChange) + X_toCOR));
 
             localcoordinate = localcoordinate.transform_matrix(angle(-((double)initial.angle+(relAngleChange/2) - globaloffset + encoderangoffset)));
           }
