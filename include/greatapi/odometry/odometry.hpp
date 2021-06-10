@@ -24,7 +24,7 @@ namespace greatapi{
       distance Y_toCOR; // distance of Y axis tracking wheel to center of rotation, forwards is positive
       odom_rotation* rotationcalc;
       double encoderangoffset; //angle between the forwards direction of the bot and encoder measured positive Y axis. //TBD: figure out when measurement is positive/negative(left or right encoder)
-      double globaloffset; //angle between encoder measured positive X axis and the forwards direction of the bot. //above tbd for this line as well
+      double globaloffset; //angle between forwards direction and the global X axis(positive direction) at bot start position. //above tbd for this line as well
       distance Xlast = 0;
       distance Ylast = 0;
       /*

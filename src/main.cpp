@@ -29,7 +29,9 @@ void opcontrol() {
 
 	greatapi::odometry::odometry test(leftwheel, greatapi::inches(15), rearwheel, greatapi::inches(15), &example);
 
+	greatapi::position location(greatapi::coord(),greatapi::SRAD(0));
+
 	while(true){
-		test.calculateposition(greatapi::position(greatapi::coord(),greatapi::SRAD(0)));
+		test.calculateposition(location);
 	}
 }
