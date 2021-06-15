@@ -5,6 +5,7 @@
 #ifndef BASIC_DATATYPE_HPP
 #define BASIC_DATATYPE_HPP
 
+#include "greatapi/units/REF_VALUE.hpp"
 #include "greatapi/units/universal_datatype.hpp"
 #include "greatapi/units/distance_units/universal_distance.hpp"
 #include "greatapi/units/angle_units/universal_angle.hpp"
