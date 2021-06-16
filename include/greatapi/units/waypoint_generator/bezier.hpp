@@ -8,20 +8,44 @@
 namespace greatapi {
   struct Bezier : public WaypointGenerator{
     std::vector<coord> params;
-    Bezier(std::vector<coord> dataset):params(dataset),WaypointGenerator(){}
-      std::vector<coord> compute(int density){
-        std::vector<coord> returnset = {};
-        for(double t = 0; t <= double(1); t+=(1/double(density))){
-          coord tmp = coord();
-          for (int i = 0; i < params.size(); i++){
-              double ccfactor = (Ptriangle[params.size()-1][i])*pow((1-t),params.size()-1-i)*pow(t,i);
-              tmp.x+=ccfactor*params[i].x;
-              tmp.y+=ccfactor*params[i].y;
-          }
-          returnset.emplace_back(tmp);
-        }
-        return returnset;
+
+    //the slope of a bezier curve at state Z is the rise/run of the bezier curve of the differences between each point in the OG bezier
+    std::vector<coord> slopeparams = {};
+
+    Bezier(std::vector<coord> dataset):params(dataset),WaypointGenerator(){
+      for(int i = 0; i < params.size()-2; i++){
+        slopeparams.emplace_back(coord(params[i+1].x - params[i].x, params[i+1].y - params[i].y));
       }
+    }
+
+    std::vector<coord> compute(int density){
+      return computeV(params,density);
+    }
+
+    std::vector<coord> computeV(std::vector<coord> target, int density){
+      std::vector<coord> returnset = {};
+      for(double t = 0; t <= double(1); t+=(1/double(density))){
+        returnset.emplace_back(computePC(target,t));
+      }
+      return returnset;
+    }
+
+    coord computePC(std::vector<coord> target, double PC){
+      coord tmp = coord();
+      for (int i = 0; i < target.size(); i++){
+          double ccfactor = (Ptriangle[target.size()-1][i])*pow((1-PC),target.size()-1-i)*pow(PC,i);
+          tmp.x+=ccfactor*target[i].x;
+          tmp.y+=ccfactor*target[i].y;
+      }
+      return tmp;
+    }
+
+    //TBD: we need a reverse solver to determine nearest % completion.
+    //this will likely need some sorta newton-rasphaodian solver where we approach the correct % completion with more iterations
+    SRAD computeheading(double percCompl){
+      coord vector = computePC(slopeparams, percCompl); //the magnitude of this heading is irrelevant, I think. we need to turn this slope into an angle.
+      return SRAD(atan2(vector.y, vector.x)); //atan2 converts x and y into angle of interval +PI to -PI. SRAD constructor turns that interval into 0-2PI
+    }
   };
 }
 
