@@ -13,7 +13,10 @@ namespace greatapi {
     waypointset(std::vector<coord> coordinateset):vector<coord>(coordinateset){}
 
     //X has an interval between 0 and 1.
-    virtual SRAD get_slope(double t);
+    virtual SRAD get_heading(double scalefactor);
+
+    //return rise/run slope for easy negative recoprical creation
+    virtual double get_slope(double scalefactor);
 
     //TBD: develop an approach to sepeprate this data
     /*
@@ -42,8 +45,9 @@ namespace greatapi {
       the closest point on the perpendicular line. you can determine the direction one must travel in each axis by subtracting the bot coord from
       that closest point.
 
-      You could do this for all points along the path, with one test going forwards from the start and one going backwards from the end.
-      An alternate choice is to compare the travels on a line by line basis, until the travel directions are opposite. this may prove more reliable.
+      Compare the travels on a line by line basis, until the travel directions are opposite.
+      It is plausable that there exist edge cases(like a really sharp eclipse) where multiple valid solutions exist. Calculate them all, and select the one with the
+      shortest distance to center. The other edge case of a loop where a path overlaps twice can be solved by some sort of line segement counting done probably externally.
 
       There exists the question of which line's slope to use for each point. Please keep consistency, and ensure that no interval of space isn't part of a line.
       I would actually suggest averaging out the slope for perp lines extending out of a point connected to two lines. If one were to use each slope and
@@ -79,8 +83,12 @@ namespace greatapi {
     WaypointGenerator generator;
     Gwaypointset(WaypointGenerator e, int density):waypointset(e.compute(density)),generator(e){}
 
-    SRAD get_slope(double t){
-      return generator.computeheading(t);
+    SRAD get_heading(double scalefactor){
+      return generator.computeheading(scalefactor);
+    }
+
+    double get_slope(double scalefactor){
+      return generator.computeslope(scalefactor);
     }
   };
 

@@ -11,6 +11,8 @@ namespace greatapi {
 
     //completion ranges from 0 to 1.
     virtual SRAD computeheading(double completion);
+
+    virtual double computeslope(double completion);
   };
 }
 

@@ -46,6 +46,11 @@ namespace greatapi {
       coord vector = computePC(slopeparams, percCompl); //the magnitude of this heading is irrelevant, I think. we need to turn this slope into an angle.
       return SRAD(atan2(vector.y, vector.x)); //atan2 converts x and y into angle of interval +PI to -PI. SRAD constructor turns that interval into 0-2PI
     }
+
+    double computeslope(double percCompl){
+      coord vector = computePC(slopeparams, percCompl); //the magnitude of this heading is irrelevant, I think. we need to turn this slope into an angle.
+      return vector.y/vector.x; //returns rise/run slope
+    }
   };
 }
 
