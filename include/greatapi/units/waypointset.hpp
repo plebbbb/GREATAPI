@@ -18,6 +18,13 @@ namespace greatapi {
     //return rise/run slope for easy negative recoprical creation
     virtual double get_slope(double scalefactor);
 
+    //completion is of interval 0-1
+    coord getbyperc(double completion){
+      int V = ceil(completion*size());
+      if(V < 0) V = 0;
+      if(V >= size()) V = size()-1;
+      return at(V);
+    }
     //TBD: develop an approach to sepeprate this data
     /*
       As an example, my previous code had a percentage based structure,
@@ -79,6 +86,7 @@ namespace greatapi {
     */
   };
 
+  //we can't keep waypointgenerator outside due to needing it to compute slope information.
   struct Gwaypointset : public waypointset {
     WaypointGenerator generator;
     Gwaypointset(WaypointGenerator e, int density):waypointset(e.compute(density)),generator(e){}
@@ -91,7 +99,6 @@ namespace greatapi {
       return generator.computeslope(scalefactor);
     }
   };
-
 }
 
 #endif
