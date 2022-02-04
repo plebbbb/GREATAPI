@@ -66,6 +66,10 @@ namespace greatapi{
           distance Xtravel = Xaxis -> get_distance() - Xlast; //the distance sensors return sum values. We need net change from previous iteration.
           distance Ytravel = Yaxis -> get_distance() - Ylast;
 
+          Ylast+=Ytravel;
+          Xlast+=Xtravel;
+
+
           //if no angle change, just add coords
           if(relAngleChange == angle(0)){
             localcoordinate.x += Xtravel;
