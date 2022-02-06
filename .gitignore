@@ -7,11 +7,9 @@
 *.elf
 
 # PROS
-bin/
 .vscode/
 compile_commands.json
 temp.log
 temp.errors
 *.ini
-include/okapi
 .d/
