@@ -18,18 +18,15 @@ namespace greatapi {
       }
     }
 
-    std::vector<coord> compute(int density){
-      return computeV(params,density);
-    }
-
-    std::vector<coord> computeV(std::vector<coord> target, int density){
-      std::vector<coord> returnset = {};
+    std::vector<position> compute(int density){
+      std::vector<position> returnset = {};
       for(double t = 0; t <= double(1); t+=(1/double(density))){
-        returnset.emplace_back(computePC(target,t));
+        returnset.emplace_back(position(computePC(params,t), computeheading(t));
       }
       return returnset;
     }
 
+    //computes a coordinate at given value PC
     coord computePC(std::vector<coord> target, double PC){
       coord tmp = coord();
       for (int i = 0; i < target.size(); i++){
