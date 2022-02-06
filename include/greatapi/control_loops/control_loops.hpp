@@ -49,11 +49,11 @@ namespace greatapi{
       }
   };
 
-  struct Derivitive: public controlelement{
+  struct Derivative: public controlelement{
       double past = 0;
       double maxcap;
       double mincap;
-      Derivitive(double fac, std::pair<double,double> caps):controlelement(fac){
+      Derivative(double fac, std::pair<double,double> caps):controlelement(fac){
           maxcap = std::get<0>(caps);
           mincap = std::get<1>(caps);
       }

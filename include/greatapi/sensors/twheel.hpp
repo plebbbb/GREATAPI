@@ -14,6 +14,7 @@ namespace greatapi{
     distance WRadius;
     TWheel(distance WR):WRadius(WR){};
     virtual distance get_distance() = 0;
+    virtual void reset() = 0;
   };
 
   //old V4 ADI encoder tracking wheel
@@ -29,6 +30,11 @@ namespace greatapi{
     //turns the degrees output of the ADIEncoder into radians, and the multiplying by radius to get the total spun distance(probably inches)
     distance get_distance(){
       return (double)angle(degrees(sensor.get_value())) * (double)WRadius; //the degrees class is converted into an angle class(which is in radians)
+    }
+
+    //resets the ADIEncoder
+    void reset(){
+      sensor.reset();
     }
   };
 
@@ -49,6 +55,11 @@ namespace greatapi{
       sensor.reset(); //reset rotation sensor. this is the only way to determine direction with sensor as it doesnt do absolutes
       return SumRotation * WRadius;
     }
+
+    //resets the Rotation Sensor
+    void reset(){
+      sensor.reset();
+    }
   };
 
   //for the people insane enough to run odometry on V5 motor encoders
@@ -67,6 +78,10 @@ namespace greatapi{
       return (double)angle(degrees(sensor.get_position())) * (double)WRadius;
     }
 
+    //resets the motor encoder
+    void reset(){
+      sensor.tare_position();
+    }
   };
 
 }

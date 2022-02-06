@@ -7,7 +7,7 @@ namespace greatapi {
   //standard angle units are RADIANS
   struct unit{
     double value;
-    unit(int v):value(v){};
+    unit(double v):value(v){};
 
     //convert to double for math stuff
     //private:

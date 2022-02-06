@@ -33,5 +33,6 @@ void opcontrol() {
 
 	while(true){
 		test.calculateposition(location);
+		pros::delay(10);
 	}
 }
