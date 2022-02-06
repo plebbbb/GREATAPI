@@ -50,7 +50,7 @@ namespace greatapi{
         rotationcalc = rotation;
         //default setup, assumes that tracking wheels are parallel with forwards direction, and that the back of the bot is aganist the X axis wall
         encoderangoffset = 0;
-        globaloffset = M_PI/2;
+        globaloffset = 0;
         X_toCOR = X_to_ctr;
         Y_toCOR = Y_to_ctr;
       }
