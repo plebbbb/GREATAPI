@@ -21,7 +21,7 @@ namespace greatapi {
     std::vector<position> compute(int density){
       std::vector<position> returnset = {};
       for(double t = 0; t <= double(1); t+=(1/double(density))){
-        returnset.emplace_back(position(computePC(params,t), computeheading(t));
+        returnset.emplace_back(position(computePC(params,t), computeheading(t)));
       }
       return returnset;
     }
