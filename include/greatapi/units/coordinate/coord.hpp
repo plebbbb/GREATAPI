@@ -96,6 +96,10 @@ struct coord {
 		double operator*(coord change) {
 			return (x*change.x) + (y*change.y);
 		}
+
+		coord operator*(double constant){
+			return coord(x*constant, y*constant);
+		}
 	};
 }
 #endif
