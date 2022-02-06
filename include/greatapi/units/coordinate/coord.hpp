@@ -36,8 +36,9 @@ struct coord {
 		//Utility functions
 
 		void self_transform_matrix(SRAD offset){
+			double tempx = x;
 			x = cos(offset)*x - sin(offset)*y;
-			y = sin(offset)*x + cos(offset)*y;
+			y = sin(offset)*tempx + cos(offset)*y;
 		}
 
 		coord transform_matrix(SRAD offset){

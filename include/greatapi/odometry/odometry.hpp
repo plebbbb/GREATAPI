@@ -44,6 +44,15 @@ namespace greatapi{
       */
 
       //NOTE: your all params should be constructed with the new keyword. This is because you need a static memory location for polymorphisism to work.
+      /**
+       * @brief Construct a new odometry object
+       * 
+       * @param X the X axis tracking wheel
+       * @param X_to_ctr distance form X tracking wheel to center of rotation, forwards is positive
+       * @param Y  the Y axis tracking wheel
+       * @param Y_to_ctr distance form Y tracking wheel to center of rotation, right is positive
+       * @param rotation odom_rotation object to track rotation
+       */
       odometry(TWheel* X, distance X_to_ctr, TWheel* Y, distance Y_to_ctr, odom_rotation* rotation){
         Xaxis = X;
         Yaxis = Y;
@@ -52,7 +61,7 @@ namespace greatapi{
         encoderangoffset = 0;
         globaloffset = 0;
         X_toCOR = X_to_ctr;
-        Y_toCOR = Y_to_ctr;
+        Y_toCOR = -Y_to_ctr;
       }
 
       position calculateposition(position initial){
