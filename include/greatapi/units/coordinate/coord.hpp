@@ -36,13 +36,13 @@ struct coord {
 		//Utility functions
 
 		void self_transform_matrix(SRAD offset){
-			x = cos(offset)*x + sin(offset)*x;
-			y = - sin(offset)*y + cos(offset)*y;
+			x = cos(offset)*x - sin(offset)*y;
+			y = sin(offset)*x + cos(offset)*y;
 		}
 
 		coord transform_matrix(SRAD offset){
-			double xe = double(cos((double)offset)*(double)x + sin((double)offset)*(double)y);
-			double ye = double(cos((double)offset)*(double)y - sin((double)offset)*(double)x);
+			double xe = double(cos((double)offset)*(double)x - sin((double)offset)*(double)y);
+			double ye = double(cos((double)offset)*(double)y + sin((double)offset)*(double)x);
 			return coord(std::pair<distance,distance>{xe,ye});
 		}
 
