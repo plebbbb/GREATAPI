@@ -4,9 +4,9 @@
 #ifndef WAYPOINTS_HPP
 #define WAYPOINTS_HPP
 
-#include "greatapi/units/waypoint_generator/universal_generator.hpp"
-#include "greatapi/units/waypoint_generator/bezier.hpp"
-#include "greatapi/units/waypoint_generator/linear.hpp"
-
+#include "greatapi/path_generator/waypoint_generator/universal_generator.hpp"
+#include "greatapi/path_generator/waypoint_generator/bezier.hpp"
+#include "greatapi/path_generator/waypoint_generator/linear.hpp"
+#include "greatapi/path_generator/pathset.hpp"
 
 #endif

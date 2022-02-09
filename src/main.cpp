@@ -14,6 +14,16 @@ void competition_initialize() {}
 void autonomous() {}
 
 
+//test sequence for pathset. This algo is moreso designed for holonomic drives rather than tank drives
+//test without motor power, with odometry on, manually move to coordinates.
+void PP_test(){
+	//external positon variable to hold the target positon at the moment
+	//while true
+		//while (odometry reading is more than some distance from a target position, angle irrleevant for now)
+		//outside of while loop: call pathset.get_next_position
+		//delay or something
+}
+
 void opcontrol() {
 
 		//TWheel is an abstract class. You should be using the constructor of specific TWheels
