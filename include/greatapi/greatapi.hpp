@@ -6,5 +6,6 @@
 
 #include "greatapi/basic_datatypes.hpp"
 #include "greatapi/odometry/odometry.hpp"
+#include "greatapi/control_loops/control_loops.hpp"
 
 #endif
