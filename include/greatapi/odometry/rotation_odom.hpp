@@ -51,6 +51,8 @@ namespace greatapi{
 
     };
 
+/* commented out because not implemented yet. 
+
     //double inertial sensor system
     struct DoubleIMU_odom_rotation : public odom_rotation{
       pros::Imu Positive;
@@ -61,7 +63,7 @@ namespace greatapi{
         //put heading calcs here plz.
       }
     }; //To get angle, atan2 the raw X and Y values you get or something and add that to existing angle. Idk how u do this backwards for averaging tho.
-
+*/
 
     //ADI encoder(the big red ones) system
     struct TWheel_odom_rotation : public odom_rotation{
