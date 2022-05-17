@@ -30,8 +30,9 @@ namespace greatapi {
      last recorded position and assume that's probably the right point and we didnt just skip any significant movement*/
      /*
       D_threshold - minimum distance to current location for point acceptability
-      lookahead - maximum amount of allowed steps ahead to identify position from last known coordinate
-      just returns the farthest location availiable if nothing closer is availiable.
+      lookahead_old - maximum amount of allowed steps ahead for identifying the nearest coordinate which hasn't been targeted
+      lookahead_new - maximum amount of allowed steps ahead for identifying a new target point
+      just returns the farthest location lookahead_new allows if nothing closer is availiable.
 
       this function should not be spammed! logic for determining if you need a new target is to be done externally
      */
@@ -42,6 +43,7 @@ namespace greatapi {
           return waypoints[i];
         }
       }
+      return waypoints[std::min(start_index+lookahead_new, len)-1]; //If no points are sufficiently far away
     }
 
     //computes nearest coord by distance to coordinates after last known used target coordinate
