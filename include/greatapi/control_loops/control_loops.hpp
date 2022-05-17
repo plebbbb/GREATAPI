@@ -17,6 +17,11 @@ namespace greatapi{
   struct Proportional: public controlelement{
       double maxcap;
       double mincap;
+      Proportional(double fac):controlelement(fac){
+        mincap = __DBL_MIN__;
+        maxcap = __DBL_MAX__;
+      }
+
       Proportional(double fac, std::pair<double,double> caps):controlelement(fac){
           maxcap = std::get<0>(caps);
           mincap = std::get<1>(caps);
@@ -34,6 +39,13 @@ namespace greatapi{
       double last = 0;
       double maxcap;
       double mincap;
+
+      //this is NOT recommended due to integral windup
+      Integral(double fac):controlelement(fac){
+        mincap = __DBL_MIN__;
+        maxcap = __DBL_MAX__;
+      }
+
       Integral(double fac, std::pair<double,double> caps):controlelement(fac){
           maxcap = std::get<0>(caps);
           mincap = std::get<1>(caps);
@@ -53,6 +65,11 @@ namespace greatapi{
       double past = 0;
       double maxcap;
       double mincap;
+      Derivative(double fac):controlelement(fac){
+        mincap = __DBL_MIN__;
+        maxcap = __DBL_MAX__;
+      }
+
       Derivative(double fac, std::pair<double,double> caps):controlelement(fac){
           maxcap = std::get<0>(caps);
           mincap = std::get<1>(caps);
