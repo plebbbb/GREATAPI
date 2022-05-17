@@ -10,3 +10,5 @@ Installation should be possible via the pros editor's upgrade tab. If it doesn't
 ```
 prosv5 conduct apply greatapi
 ```
+## Documentation
+https://plebbbb.github.io/GREATAPI_docs/

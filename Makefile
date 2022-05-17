@@ -17,7 +17,7 @@ EXTRA_CFLAGS=
 EXTRA_CXXFLAGS=
 
 # Set to 1 to enable hot/cold linking
-USE_PACKAGE:=1
+USE_PACKAGE:=0
 
 # Add libraries you do not wish to include in the cold image here
 # EXCLUDE_COLD_LIBRARIES:= $(FWDIR)/your_library.a
@@ -27,7 +27,7 @@ EXCLUDE_COLD_LIBRARIES:=
 IS_LIBRARY:=1
 # TODO: CHANGE THIS!
 LIBNAME:=greatapi
-VERSION:=0.0.8_PPDEV
+VERSION:=0.0.11
 # EXCLUDE_SRC_FROM_LIB= $(SRCDIR)/unpublishedfile.c
 # this line excludes opcontrol.c and similar files
 EXCLUDE_SRC_FROM_LIB+=$(foreach file, $(SRCDIR)/main,$(foreach cext,$(CEXTS),$(file).$(cext)) $(foreach cxxext,$(CXXEXTS),$(file).$(cxxext)))
