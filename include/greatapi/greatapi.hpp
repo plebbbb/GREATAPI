@@ -8,5 +8,6 @@
 #include "greatapi/waypoints.hpp"
 #include "greatapi/odometry/odometry.hpp"
 #include "greatapi/control_loops/control_loops.hpp"
+#include "greatapi/math/function.hpp"
 
 #endif
