@@ -94,9 +94,16 @@ namespace greatapi{
           maxcap = std::get<0>(caps);
           mincap = std::get<1>(caps);
       }
+
+      //alternate constructor, assumes min and max caps are int limit.
+      control_loop(std::vector<controlelement*> val):elementset(val){
+          maxcap = 2147483647;
+          mincap = -2147483647;
+      }
+
       double update(double target, double current){
           double returnval = 0;
-          //no enhanced for to minimize risk of sketchy copying issues
+          //no enhanced for to stop sketchy copying issues
           for (int i = 0; i < elementset.size(); i++){
               returnval += elementset[i]->compute(target,current);
           }
