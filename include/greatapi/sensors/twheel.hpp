@@ -10,7 +10,7 @@
 namespace greatapi{
 
   //tracking wheel parent class
-  struct TWheel{
+  struct TWheel {
     distance WRadius;
     TWheel(distance WR):WRadius(WR){};
     virtual distance get_distance() = 0;
@@ -41,19 +41,17 @@ namespace greatapi{
   //new V5 rotation sensor tracking wheel
   struct TWheel_RotationSensor : public TWheel{
     pros::Rotation sensor;
-    angle SumRotation; //Sum, as new rotation sensor doesnt have a sum angle
 
     //v5 port constructor
     TWheel_RotationSensor(int port, bool direction, double WheelDiam):sensor(port),TWheel(WheelDiam/double(2)){
+      sensor.set_data_rate(5);
+      sensor.reset_position();
       sensor.set_reversed(direction); //reverse sensor depending on direction constructor parameter.
     }
 
     //turns the degrees output of the ADIEncoder into radians, and the multiplying by radius to get the total spun distance(probably inches)
     distance get_distance(){
-      degrees ang = sensor.get_angle();
-      SumRotation += (ang > degrees(180)) ? ang-degrees(360) : ang; //if yielding bigger than 180, it is going backwards. We need a negative angle for that so we subtract 360.
-      sensor.reset(); //reset rotation sensor. this is the only way to determine direction with sensor as it doesnt do absolutes
-      return SumRotation * WRadius;
+      return (double)angle(degrees((double)sensor.get_position() / 100.0)) * (double)WRadius; //the degrees class is converted into an angle class(which is in radians)
     }
 
     //resets the Rotation Sensor
