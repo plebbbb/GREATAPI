@@ -56,7 +56,7 @@ namespace greatapi{
 
     //resets the Rotation Sensor
     void reset(){
-      sensor.reset();
+      sensor.reset_position();
     }
   };
 
