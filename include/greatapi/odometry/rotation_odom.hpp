@@ -10,6 +10,7 @@
 //attempted odometry rewrite
 namespace greatapi{
   namespace odometry{
+
     //parent class of rotational odometry systems
     struct odom_rotation{
       double DOffset = 0; //drift offset. This is a hard offset which is designed to be used for on-the-fly odom resets at known headings. this is in radians.
@@ -26,6 +27,9 @@ namespace greatapi{
       void applyOffset(SRAD real){
         DOffset = findDiff(get_heading_raw(),real); //subtracts getHeading() from real angle. Thus, Doffset+getHeading = real angle.
       }
+
+      void calibrate();
+      void tare();
     };
 
     //single inertial sensor rotation system
@@ -47,6 +51,15 @@ namespace greatapi{
 
       SRAD get_heading_raw() {
         return SRAD(degrees(((double)Inertial.get_heading())*DFC)); //turn raw angle into radians, then constrain to 0-2PI interval via SRAD constructor
+      }
+
+      void calibrate(){
+        Inertial.reset();
+        pros::delay(2100);
+      }
+
+      void tare(){
+        Inertial.tare();
       }
 
     };
@@ -79,6 +92,15 @@ namespace greatapi{
 
       SRAD get_heading_raw(){
         return SRAD(double((Right->get_distance() - Left->get_distance())/rotationalDist));
+      }
+
+      void calibrate(){
+        
+      }
+      void tare(){
+        Left->reset();
+        Right->reset();
+        //pros::delay(5);
       }
     };
   }
