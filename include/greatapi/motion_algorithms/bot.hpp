@@ -74,15 +74,8 @@ namespace greatapi {
 
                 pros::Task odomTask = pros::Task(&bot::odomLooper);
                 pros::Task posControlTask = pros::Task(&bot::pos_control);
+                pros::delay(5);
             }
-
-            
-
         } ;
-
-        
-
-
-        
     }
 }
