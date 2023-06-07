@@ -33,15 +33,15 @@ namespace purePursuit {
 
         Target() {}
 
-        void newPath(double xPos_, double yPos_, std::pair<Node, Node> path_[], int pathLength_) {
+        void newPath(std::pair<Node, Node> path_[], int pathLength_) {
             firstLoop = true;
             unlocked = true;
 
             //endpoint = Node(xh, yh);
             pathLength = pathLength_;
-
-            xPos = xPos_;
-            yPos = yPos_;
+            
+            xPos = path[0].first.xPos;
+            yPos = path[0].first.yPos;
             
             for (int i = 0; i < 128; i++) {
                 if (i < pathLength) {
