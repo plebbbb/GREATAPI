@@ -8,5 +8,7 @@
 #include "greatapi/odometry/odometry.hpp"
 #include "greatapi/control_loops/control_loops.hpp"
 #include "greatapi/purePursuit/purePursuit.hpp"
+#include "greatapi/motion_algorithms/motion.hpp"
+#include "helpers.hpp"
 
 #endif

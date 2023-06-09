@@ -1,7 +1,9 @@
-#include <type_traits>
- 
 #ifndef HELPER_HPP
 #define HELPER_HPP
+
+#include <type_traits>
+ 
+#define PI 3.14159265358979323846
 
  
  template <typename T> inline constexpr

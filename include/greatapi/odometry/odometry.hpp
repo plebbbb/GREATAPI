@@ -27,6 +27,8 @@ namespace greatapi{
       double globaloffset; //angle between encoder measured positive X axis and the forwards direction of the bot. //above tbd for this line as well
       distance Xlast = 0;
       distance Ylast = 0;
+
+      bool hasXWheel = true;
       /*
         explaining encoderangoffset and globaloffset
 
@@ -62,6 +64,21 @@ namespace greatapi{
         globaloffset = 0;
         X_toCOR = X_to_ctr;
         Y_toCOR = -Y_to_ctr;
+
+        hasXWheel = true;
+      }
+      
+      odometry(TWheel* Y, distance Y_to_ctr, odom_rotation* rotation) {
+        Xaxis = nullptr;
+        Yaxis = Y;
+        rotationcalc = rotation;
+        //default setup, assumes that tracking wheels are parallel with forwards direction, and that the back of the bot is aganist the X axis wall
+        encoderangoffset = 0;
+        globaloffset = 0;
+        X_toCOR = 0;
+        Y_toCOR = -Y_to_ctr;
+
+        hasXWheel = false;
       }
 
       position calculateposition(position initial){
@@ -72,7 +89,8 @@ namespace greatapi{
           //local coordinate object to be used for transforms
           coord localcoordinate = std::pair<distance,distance>{0,0};
 
-          distance Xtravel = Xaxis -> get_distance() - Xlast; //the distance sensors return sum values. We need net change from previous iteration.
+          distance Xtravel = 0;
+          if (hasXWheel) Xtravel = Xaxis -> get_distance() - Xlast; //the distance sensors return sum values. We need net change from previous iteration.
           distance Ytravel = Yaxis -> get_distance() - Ylast;
 
           Xlast = Xaxis -> get_distance();
@@ -89,8 +107,8 @@ namespace greatapi{
             localcoordinate.y = double(2.0*sin(relAngleChange/2) *
             (((double)Ytravel/relAngleChange) + Y_toCOR));
 
-            localcoordinate.x = double(2.0*sin(relAngleChange/2) *
-            (((double)Xtravel/relAngleChange) + X_toCOR));
+            if (hasXWheel) localcoordinate.x = double(2.0*sin(relAngleChange/2) *
+                            (((double)Xtravel/relAngleChange) + X_toCOR));
           }
           localcoordinate = localcoordinate.transform_matrix(angle(((double)initial.angle+(relAngleChange/2) - globaloffset + encoderangoffset)));
 
@@ -102,7 +120,7 @@ namespace greatapi{
         }
 
         void tare() {
-          Xaxis -> reset();
+          if (hasXWheel) Xaxis -> reset();
           Yaxis -> reset();
           //pros::delay(5);
           rotationcalc -> tare();

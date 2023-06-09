@@ -1,18 +1,17 @@
+#ifndef BOT_HPP
+#define BOT_HPP 
 
-#include "helpers.hpp"
-#include "odometry/odometry.hpp"
+#include "greatapi/helpers.hpp"
+#include "greatapi/odometry/odometry.hpp"
 #include "pros/motors.hpp"
 #include "pros/rtos.hpp"
-#include "units/angle_units/srad.hpp"
-#include "units/coordinate/coord.hpp"
-#include "units/coordinate/position.hpp"
-#include "purePursuit/purePursuit.hpp"
-#include "control_loops/control_loops.hpp"
+#include "greatapi/basic_datatypes.hpp"
+#include "greatapi/purePursuit/purePursuit.hpp"
+#include "greatapi/control_loops/control_loops.hpp"
 #include "main.h"
 
 namespace greatapi {
     namespace motion {
-        #define PI 3.1415926535897932384626433832795
 
         #define rotateVoltCap 12000
         #define moveRotVoltCap 6000
@@ -29,12 +28,12 @@ namespace greatapi {
             double voltageCap = moveVoltCap;
             double rotVCap = moveRotVoltCap;
 
+            double total_error = 0;
+            coord error = coord(0, 0);
+
             bot(odometry::odometry* odom_) {
                 odom = odom_;
             }
-
-            double total_error = 0;
-            coord error = coord(0, 0);
 
             void odomLooper() {
                 while (true) {
@@ -52,11 +51,9 @@ namespace greatapi {
                 odom->tare();
             }
 
-            void pos_control();
+            virtual void pos_control() = 0;
 
-            
-
-            void rotate(double angleDeg, double errorStop);
+            virtual void rotate(double angleDeg, double errorStop) = 0;
 
 
 
@@ -72,10 +69,15 @@ namespace greatapi {
                 curPos.angle = startOrientation;
                 odom->rotationcalc->DOffset = -startOrientation;
 
-                pros::Task odomTask = pros::Task(&bot::odomLooper);
-                pros::Task posControlTask = pros::Task(&bot::pos_control);
-                pros::delay(5);
+                pros::Task odomTask ([=] {
+                    odomLooper();
+                }, "odom_task");
+
+                pros::Task motionTask ([=] {
+                    pos_control();
+                }, "motion_task");
             }
         } ;
     }
 }
+#endif

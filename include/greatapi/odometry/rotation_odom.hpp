@@ -28,8 +28,8 @@ namespace greatapi{
         DOffset = findDiff(get_heading_raw(),real); //subtracts getHeading() from real angle. Thus, Doffset+getHeading = real angle.
       }
 
-      void calibrate();
-      void tare();
+      virtual void calibrate() = 0;
+      virtual void tare() = 0;
     };
 
     //single inertial sensor rotation system

@@ -3,7 +3,7 @@
 
 namespace greatapi {
     namespace motion {
-        struct bot_tank : public bot {
+        struct bot_tank : bot {
             pros::Motor_Group * leftMotors;
             pros::Motor_Group * rightMotors;
 
