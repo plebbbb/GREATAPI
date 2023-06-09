@@ -80,7 +80,7 @@ inline greatapi::odometry::IMU_odom_rotation imuRotation
     (imu_port, -1.01);
 
 inline greatapi::odometry::odometry odom = greatapi::odometry::odometry(&rear_encoder, greatapi::inches(XWHEEL_DIST_CENTER), &left_encoder,
-         greatapi::inches(WHEEL_DIST_LR / -2.0), &imuRotation);
+         greatapi::inches(- WHEEL_DIST_LR / 2.0), &imuRotation);
 
 inline greatapi::motion::bot_tank robot(&odom, &left_drive, &right_drive);
 

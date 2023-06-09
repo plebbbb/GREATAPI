@@ -11,9 +11,9 @@ namespace greatapi {
             bool reverseDrive = false;
 
             double kPAngle = 18000;
-            double kIAngle = 12000;
+            double kIAngle = 5000;
 
-            double kPRotate = 32000;
+            double kPRotate = 30000;
 
             controlelement *PY = new greatapi::Proportional(1200, std::pair(__INT_MAX__, -__INT_MAX__));          
             controlelement *IY = new greatapi::Integral(0, std::pair(3000, -3000));                              
@@ -24,7 +24,7 @@ namespace greatapi {
 
             controlelement *PAngle = new greatapi::Proportional(kPAngle, std::pair(__INT_MAX__, -__INT_MAX__));     
             controlelement *IAngle = new greatapi::Integral(kIAngle, std::pair(2000, -2000));                        
-            controlelement *DAngle = new greatapi::Derivative(320000, std::pair(__INT_MAX__, -__INT_MAX__));
+            controlelement *DAngle = new greatapi::Derivative(160000, std::pair(__INT_MAX__, -__INT_MAX__));
             std::vector<greatapi::controlelement *> PIDAngleElements = {PAngle, IAngle, DAngle};
             control_loop PIDAngle = control_loop(PIDAngleElements, std::pair(12000, -12000));
 
@@ -68,10 +68,10 @@ namespace greatapi {
                         yMove = -voltageCap;
                     }
 
-                    if (anglePow > voltageCap) {
-                        anglePow = voltageCap;
-                    } else if (anglePow < -voltageCap) {
-                        anglePow = -voltageCap;
+                    if (anglePow > rotVCap) {
+                        anglePow = rotVCap;
+                    } else if (anglePow < -rotVCap) {
+                        anglePow = -rotVCap;
                     }
 
                     if (yMove + fabs(anglePow) > voltageCap) {
@@ -94,7 +94,7 @@ namespace greatapi {
                     // printf("Angle target: %.2f X: %.2f Y: %.2f\n", targetPos.angle / PI * 180, (double) targetPos.x, (double) targetPos.y);
                     // printf("Total error: %.2f\n", total_error);
 
-                    pros::delay(5);
+                    pros::delay(10);
                 }
             }
 
@@ -367,11 +367,11 @@ namespace greatapi {
                     }
                     targetPair = std::make_pair(target.xPos, target.yPos);
 
-                    if (!lastIn && fabs(greatapi::findDiff(curPos.angle, targetPos.angle)) < greatapi::degrees(18)) {
-                        printf("T %.2f\n", (double) curPos.angle * 180 / PI);
-                        IAngle = new greatapi::Integral(kIAngle, std::pair(1000, -1000));
-                        lastIn = true;
-                    }
+                    // if (!lastIn && fabs(greatapi::findDiff(curPos.angle, targetPos.angle)) < greatapi::degrees(18)) {
+                    //     printf("T %.2f\n", (double) curPos.angle * 180 / PI);
+                    //     IAngle = new greatapi::Integral(kIAngle, std::pair(1000, -1000));
+                    //     lastIn = true;
+                    // }
 
                     targetPos.x = targetPair.first;
                     targetPos.y = targetPair.second;

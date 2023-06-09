@@ -1,5 +1,6 @@
 #include <cmath>
 #include <utility>
+#include <vector>
 #include "node.hpp"
 
 #ifndef TARGET_HPP
@@ -21,7 +22,7 @@ namespace purePursuit {
         long double xTrans = 0, yTrans = 0;
         Node endpoint = Node(0, 0);
         
-        std::pair<Node, Node> path[128];
+        std::vector<std::pair<Node, Node>> path;
         int pathLength = 0;
 
         int stage = 0, start = 0;
@@ -40,14 +41,14 @@ namespace purePursuit {
             //endpoint = Node(xh, yh);
             pathLength = pathLength_;
             
-            xPos = path[0].first.xPos;
-            yPos = path[0].first.yPos;
-            
             for (int i = 0; i < 128; i++) {
                 if (i < pathLength) {
                     path[i] = path_[i];
                 }
             }
+
+            xPos = path[0].first.xPos;
+            yPos = path[0].first.yPos;
 
             setHeading();
             setHeadStart(visionRadius);
