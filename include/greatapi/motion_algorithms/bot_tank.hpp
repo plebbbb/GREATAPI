@@ -148,9 +148,9 @@ namespace greatapi {
             * \param goHeading whether or not to point towards the target
             * \param reverseHeading whether or not to invert the heading when pointing towards the target.
             */
-            void translatevl(double x, double y, bool revDrive, double maxVoltage, bool goHeading, bool reverseHeading) {
+            void translatevl(double x, double y, bool revDrive, double maxVoltage, bool goHeading) {
                 if (goHeading) {
-                    if (reverseHeading) {
+                    if (revDrive) {
                         rotate(90 - (atan2(y - curPos.y, x - curPos.x) + PI) / PI * 180.0, 0);
                     } else {
                         rotate(90 - (atan2(y - curPos.y, x - curPos.x)) / PI * 180.0, 0);
@@ -180,8 +180,8 @@ namespace greatapi {
             * \param goHeading whether or not to point towards the target
             * \param reverseHeading whether or not to invert the heading when pointing towards the target.
             */
-            void translate(double x, double y, bool revDrive, bool goHeading, bool reverseHeading) {
-                translatevl(x, y, revDrive, moveVoltCap, goHeading, reverseHeading);
+            void translate(double x, double y, bool revDrive, bool goHeading) {
+                translatevl(x, y, revDrive, moveVoltCap, goHeading);
                 return;
             }
 
@@ -196,8 +196,8 @@ namespace greatapi {
             * \param reverseHeading whether or not to invert the heading when pointing towards the target
             * \param distToStopBlock the distance from target to stop blocking the function. IF 0, it will default to 0.8
             */
-            void translatevl(double x, double y, bool revDrive, double maxVoltage, bool goHeading, bool reverseHeading, double distToStopBlock) {
-                translatevl(x, y, revDrive, maxVoltage, goHeading, reverseHeading);
+            void translatevl(double x, double y, bool revDrive, double maxVoltage, bool goHeading, double distToStopBlock) {
+                translatevl(x, y, revDrive, maxVoltage, goHeading);
                 if (distToStopBlock == 0) distToStopBlock = 1;
                 int stuckTimer = 0;
                 double prevError = total_error;
@@ -225,8 +225,8 @@ namespace greatapi {
             * \param reverseHeading whether or not to invert the heading when pointing towards the target
             * \param distToStopBlock the distance from target to stop blocking the function. IF 0, it will default to 0.8
             */
-            void translate(double x, double y, bool revDrive, bool goHeading, bool reverseHeading, double distToStopBlock) {
-                translatevl(x, y, revDrive, moveVoltCap, goHeading, reverseHeading, distToStopBlock);
+            void translate(double x, double y, bool revDrive, bool goHeading, double distToStopBlock) {
+                translatevl(x, y, revDrive, moveVoltCap, goHeading, distToStopBlock);
                 return;
             }
 
@@ -240,8 +240,8 @@ namespace greatapi {
             * \param goHeading whether or not to point towards the target
             * \param reverseHeading whether or not to invert the heading when pointing towards the target.
             */
-            void rtranslatevl(double x, double y, bool revDrive, double maxVoltage, bool goHeading, bool reverseHeading) {
-                translatevl(((double) targetPos.x) + x, ((double) targetPos.y) + y, revDrive, maxVoltage, goHeading, reverseHeading);
+            void rtranslatevl(double x, double y, bool revDrive, double maxVoltage, bool goHeading) {
+                translatevl(((double) targetPos.x) + x, ((double) targetPos.y) + y, revDrive, maxVoltage, goHeading);
             }
             /**
             * translates the robot to relative coordinates. DOES NOT BLOCK EXECUTION
@@ -266,8 +266,8 @@ namespace greatapi {
             * \param reverseHeading whether or not to invert the heading when pointing towards the target
             * \param distToStopBlock the distance from target to stop blocking the function. IF 0, it will default to 0.8
             */
-            void rtranslatevl(double x, double y, bool revDrive, double maxVoltage, bool goHeading, bool reverseHeading, double distToStopBlock) {
-                translatevl(((double) targetPos.x) + x, ((double) targetPos.y) + y, revDrive, maxVoltage, goHeading, reverseHeading, distToStopBlock);
+            void rtranslatevl(double x, double y, bool revDrive, double maxVoltage, bool goHeading, double distToStopBlock) {
+                translatevl(((double) targetPos.x) + x, ((double) targetPos.y) + y, revDrive, maxVoltage, goHeading, distToStopBlock);
             }
             /**
             * translates the robot to relative coordinates. Blocks execution. 
@@ -279,8 +279,8 @@ namespace greatapi {
             * \param reverseHeading whether or not to invert the heading when pointing towards the target
             * \param distToStopBlock the distance from target to stop blocking the function. IF 0, it will default to 0.8
             */
-            void rtranslate(double x, double y, bool revDrive, bool goHeading, bool reverseHeading, double distToStopBlock) {
-                translate(((double) targetPos.x) + x, ((double) targetPos.y) + y, revDrive, goHeading, reverseHeading, distToStopBlock);
+            void rtranslate(double x, double y, bool revDrive, bool goHeading, double distToStopBlock) {
+                translate(((double) targetPos.x) + x, ((double) targetPos.y) + y, revDrive, goHeading, distToStopBlock);
             }
 
             void rtranslateDist(double dist, bool revDrive, double maxVoltage) {
@@ -290,16 +290,16 @@ namespace greatapi {
                     x = -x;
                     y = -y;
                 }
-                rtranslatevl(x, y, revDrive, maxVoltage, false, false);
+                rtranslatevl(x, y, revDrive, maxVoltage, false);
             }
             void rtranslateDist(double dist, bool revDrive) {
                 rtranslateDist(dist, revDrive, moveVoltCap);
             }
 
-            void ptranslatevl(std::pair<double, double> coords[], int pathLen, bool revDrive, double maxVoltage, bool goHeading, bool reverseHeading, double distToStopBlock) {    
+            void ptranslatevl(std::pair<double, double> coords[], int pathLen, bool revDrive, double maxVoltage, bool goHeading, double distToStopBlock) {    
     
                 if (goHeading) {
-                    if (reverseHeading) {
+                    if (revDrive) {
                         rotate(90 - (atan2(coords[0].second - curPos.y, coords[0].first - curPos.x) + PI) / PI * 180.0, 0);
                     } else {
                         rotate(90 - (atan2(coords[0].second - curPos.y, coords[0].first - curPos.x)) / PI * 180.0, 0);
@@ -362,7 +362,7 @@ namespace greatapi {
 
 
                     target.updatePosition();
-                    if (btDist() > visionRadius) {
+                    if (btDist() > target.visionRadius) {
                         target.bind(btDist());
                     }
                     targetPair = std::make_pair(target.xPos, target.yPos);
@@ -390,8 +390,8 @@ namespace greatapi {
 
             }
 
-            void ptranslate(std::pair<double, double>*coords[], int pathLen, bool revDrive, bool goHeading, bool reverseHeading, double distToStopBlock) {
-                ptranslatevl(*coords, pathLen, revDrive, moveVoltCap, goHeading, reverseHeading, distToStopBlock);
+            void ptranslate(std::pair<double, double>coords[], int pathLen, bool revDrive, bool goHeading, double distToStopBlock) {
+                ptranslatevl(coords, pathLen, revDrive, moveVoltCap, goHeading, distToStopBlock);
             }
 
         } ;

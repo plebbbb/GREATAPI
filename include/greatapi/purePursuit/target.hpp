@@ -6,7 +6,7 @@
 #ifndef TARGET_HPP
 #define TARGET_HPP
 
-#define visionRadius 25
+#define visionRadiusM 15
 #define headStartM 20
 #define velocityM 10
 
@@ -20,6 +20,7 @@ namespace purePursuit {
         long double yPos = 0;
         long double xd = 0, yd = 0, xoy = 0, ds = 0;
         long double xTrans = 0, yTrans = 0;
+        int visionRadius = visionRadiusM;
         Node endpoint = Node(0, 0);
         
         std::vector<std::pair<Node, Node>> path;
