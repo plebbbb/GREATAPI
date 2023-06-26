@@ -18,14 +18,14 @@ namespace greatapi {
             controlelement *PY = new greatapi::Proportional(1200, std::pair(__INT_MAX__, -__INT_MAX__));          
             controlelement *IY = new greatapi::Integral(0, std::pair(3000, -3000));                              
             controlelement *DY = new greatapi::Derivative(1800, std::pair(__INT_MAX__, -__INT_MAX__));            
-            std::vector<greatapi::controlelement *> PIDYElements = {PY, IY, DY};
+            std::vector<greatapi::controlelement *> PIDYElements {PY, IY, DY};
             control_loop PIDY = control_loop(PIDYElements, std::pair(12000, -12000));
 
 
             controlelement *PAngle = new greatapi::Proportional(kPAngle, std::pair(__INT_MAX__, -__INT_MAX__));     
             controlelement *IAngle = new greatapi::Integral(kIAngle, std::pair(2000, -2000));                        
             controlelement *DAngle = new greatapi::Derivative(160000, std::pair(__INT_MAX__, -__INT_MAX__));
-            std::vector<greatapi::controlelement *> PIDAngleElements = {PAngle, IAngle, DAngle};
+            std::vector<greatapi::controlelement *> PIDAngleElements {PAngle, IAngle, DAngle};
             control_loop PIDAngle = control_loop(PIDAngleElements, std::pair(12000, -12000));
 
             /**
