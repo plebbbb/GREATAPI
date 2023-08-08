@@ -23,7 +23,7 @@ namespace purePursuit {
         int visionRadius = visionRadiusM;
         Node endpoint = Node(0, 0);
         
-        std::vector<std::pair<Node, Node>> path;
+        std::pair<Node, Node> path[128];
         int pathLength = 0;
 
         int stage = 0, start = 0;

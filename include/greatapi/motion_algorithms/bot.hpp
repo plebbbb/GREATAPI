@@ -22,7 +22,7 @@ namespace greatapi {
             position curPos = position(coord(0, 0), SRAD(0));
             position targetPos = position(coord(0, 0), SRAD(0));
 
-            purePursuit::Target target;
+            purePursuit::Target target = purePursuit::Target();
 
             bool moveDrive = true;
             double voltageCap = moveVoltCap;
@@ -76,6 +76,7 @@ namespace greatapi {
                 pros::Task motionTask ([=] {
                     pos_control();
                 }, "motion_task");
+                pros::delay(50);
             }
         } ;
     }

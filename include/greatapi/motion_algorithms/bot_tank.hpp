@@ -16,8 +16,8 @@ namespace greatapi {
             double kPRotate = 30000;
 
             controlelement *PY = new greatapi::Proportional(1200, std::pair(__INT_MAX__, -__INT_MAX__));          
-            controlelement *IY = new greatapi::Integral(0, std::pair(3000, -3000));                              
-            controlelement *DY = new greatapi::Derivative(1800, std::pair(__INT_MAX__, -__INT_MAX__));            
+            controlelement *IY = new greatapi::Integral(200, std::pair(3000, -3000));                              
+            controlelement *DY = new greatapi::Derivative(2000, std::pair(__INT_MAX__, -__INT_MAX__));            
             std::vector<greatapi::controlelement *> PIDYElements {PY, IY, DY};
             control_loop PIDY = control_loop(PIDYElements, std::pair(12000, -12000));
 
@@ -120,7 +120,7 @@ namespace greatapi {
                 double prevError = fabs(greatapi::findDiff(curPos.angle, targetPos.angle));
 
                 while (fabs(greatapi::findDiff(curPos.angle, targetPos.angle)) > greatapi::degrees(errorStop) 
-                        && stuckTimer < 50) {
+                        && stuckTimer < 100) {
                     if (fabs(greatapi::findDiff(curPos.angle, targetPos.angle)) - prevError < 1.0 / 180 * PI) {
                         stuckTimer++;
                     } else {
@@ -329,24 +329,16 @@ namespace greatapi {
                 
                 if (distToStopBlock == 0) distToStopBlock = 1;
 
-                std::pair<double, double> targetPair;
                 target.newPath(path, pathLen);
 
                 int stuckTimer = 0;
                 double prevError = total_error;
-                pros::delay(20);
 
                 greatapi::SRAD pathAngle = greatapi::SRAD(0);
 
                 bool lastIn = false;
 
-
-                //IAngle->factor = 0;
-
-
-                // initialize the ksi to 5% as a parameter - then we can fine tune it 
-                // line 40 - syntax ** for conditional??
-
+                pros::delay(20);
                 while (stuckTimer < 75) { // Keep looping until at target, abort to next movement if stuck for 1.5 seconds
                     if (fabs(total_error - prevError) < 0.08) {
                         stuckTimer++;
@@ -355,26 +347,24 @@ namespace greatapi {
                     }
                     prevError = total_error;
 
-                    // pros::screen::print(pros::E_TEXT_MEDIUM, 7, "Stage: %d  targetPos X: %.2f  Y: %.2f\n", target.stage, targetPair.first, targetPair.second);
-                    // pros::screen::print(pros::E_TEXT_MEDIUM, 8, "xTrans: %.2f yTrans: %.2f\n", target.xTrans, target.yTrans);
-                    // pros::screen::print(pros::E_TEXT_MEDIUM, 9, "xoy: %.2f\n", target.xoy);
-                    // printf("stage: %d xPos: %.2f yPos: %.2f\nxTrans: %.2f yTrans: %.2f\nxoy: %.2f\n", target.stage, target.xPos, target.yPos, target.xTrans, target.yTrans, target.xoy);
+                    pros::screen::print(pros::E_TEXT_MEDIUM, 7, "Stage: %d  targetPos X: %.2f  Y: %.2f\n", target.stage, targetPos.x, targetPos.y);
+                    pros::screen::print(pros::E_TEXT_MEDIUM, 8, "xTrans: %.2f yTrans: %.2f\n", target.xTrans, target.yTrans);
+                    pros::screen::print(pros::E_TEXT_MEDIUM, 9, "xoy: %.2f\n", target.xoy);
+                    printf("stage: %d xPos: %.2Lf yPos: %.2Lf\nxTrans: %.2Lf yTrans: %.2Lf\nxoy: %.2Lf\n", target.stage, target.xPos, target.yPos, target.xTrans, target.yTrans, target.xoy);
 
 
                     target.updatePosition();
                     if (btDist() > target.visionRadius) {
                         target.bind(btDist());
                     }
-                    targetPair = std::make_pair(target.xPos, target.yPos);
-
                     // if (!lastIn && fabs(greatapi::findDiff(curPos.angle, targetPos.angle)) < greatapi::degrees(18)) {
                     //     printf("T %.2f\n", (double) curPos.angle * 180 / PI);
                     //     IAngle = new greatapi::Integral(kIAngle, std::pair(1000, -1000));
                     //     lastIn = true;
                     // }
 
-                    targetPos.x = targetPair.first;
-                    targetPos.y = targetPair.second;
+                    targetPos.x = targetPos.x;
+                    targetPos.y = targetPos.y;
 
                     pros::delay(50);
 
@@ -382,7 +372,7 @@ namespace greatapi {
                         if (total_error < distToStopBlock) break;
                     }
 
-                IAngle = new greatapi::Integral(kIAngle, std::pair(1000, -1000));
+                    IAngle = new greatapi::Integral(kIAngle, std::pair(1000, -1000));
                 
                 }
 
