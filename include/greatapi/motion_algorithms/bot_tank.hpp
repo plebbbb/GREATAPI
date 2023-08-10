@@ -3,17 +3,22 @@
 
 namespace greatapi {
     namespace motion {
+
+        /**
+         * @brief struct for tank drive robot. Subclass of bot.
+         * 
+         */
         struct bot_tank : bot {
+            //two motor groups, one for each side
             pros::Motor_Group * leftMotors;
             pros::Motor_Group * rightMotors;
 
+            // When the robot is "close enough" to the desired location, overRideHeading is set to true
+            // to prevent spinning as the robot attempts to reach the exact position
             bool overRideHeading = true;
+
+            //Bool flag for which way to drive the robot
             bool reverseDrive = false;
-
-            double kPAngle = 18000;
-            double kIAngle = 5000;
-
-            double kPRotate = 30000;
 
             controlelement *PY = new greatapi::Proportional(1200, std::pair(__INT_MAX__, -__INT_MAX__));          
             controlelement *IY = new greatapi::Integral(200, std::pair(3000, -3000));                              
@@ -24,12 +29,12 @@ namespace greatapi {
 
             controlelement *PAngle = new greatapi::Proportional(kPAngle, std::pair(__INT_MAX__, -__INT_MAX__));     
             controlelement *IAngle = new greatapi::Integral(kIAngle, std::pair(2000, -2000));                        
-            controlelement *DAngle = new greatapi::Derivative(160000, std::pair(__INT_MAX__, -__INT_MAX__));
+            controlelement *DAngle = new greatapi::Derivative(kDAngle, std::pair(__INT_MAX__, -__INT_MAX__));
             std::vector<greatapi::controlelement *> PIDAngleElements {PAngle, IAngle, DAngle};
             control_loop PIDAngle = control_loop(PIDAngleElements, std::pair(12000, -12000));
 
             /**
-             * @brief Construct a new bot tank object
+             * @brief Constructs a new bot tank object
              * 
              * @param odom_ 
              * @param leftMotors 
@@ -54,9 +59,11 @@ namespace greatapi {
                     error.self_transform_matrix(greatapi::SRAD(-1.0 * curPos.angle));
 
                     // if (translating && fabs((double) error.x) > 0.5) {
-                    if (!overRideHeading && total_error > 2) {
+                    if (!overRideHeading && total_error > 1.5) {
                         if (reverseDrive) targetPos.angle = greatapi::SRAD(atan2(targetPos.y - curPos.y, targetPos.x - curPos.x) + PI / 2);
                         else targetPos.angle = greatapi::SRAD(atan2(targetPos.y - curPos.y, targetPos.x - curPos.x) - PI / 2);
+                    } else if (!overRideHeading) {
+                        overRideHeading = true;
                     }
                     
                     double yMove = PIDY.update(error.y, 0);
@@ -74,10 +81,10 @@ namespace greatapi {
                         anglePow = -rotVCap;
                     }
 
-                    if (yMove + fabs(anglePow) > voltageCap) {
-                        yMove = voltageCap - fabs(anglePow);
-                    } else if (yMove - fabs(anglePow) < -voltageCap) {
-                        yMove = -voltageCap + fabs(anglePow);
+                    if (yMove + fabs(anglePow) > 12000) {
+                        yMove = 12000 - fabs(anglePow);
+                    } else if (yMove - fabs(anglePow) < -12000) {
+                        yMove = -12000 + fabs(anglePow);
                     }
                     
                     double lPower = (yMove + anglePow);
@@ -103,14 +110,18 @@ namespace greatapi {
             * 
             * \param angle the absolute heading to rotate to. Clockwise is positive, counter-clockwise is negative
             * \param errorStop DEGREES the function will stop the bot if the error is greater than the error threshold. IF 0, default is 2 degrees
+            * \param maxVolts Override to give a custom voltage of rotation. 
             */
-            void rotate(double angleDeg, double errorStop) {
+            void rotate(double angleDeg, double errorStop, double maxVolts) {
 
                 PAngle->factor = kPRotate;
-                // IAngle->factor = 0;
-                overRideHeading = false;
-                rotVCap = rotateVoltCap;
-                voltageCap = fmin(rotateVoltCap * 1.5, 12000);
+                IAngle->factor = kIRotate;
+                DAngle->factor = kDRotate;
+
+                overRideHeading = true;
+
+                rotVCap = maxVolts;
+                voltageCap = moveVoltCap;
 
                 greatapi::SRAD angle = greatapi::SRAD((-1.0 * angleDeg) * PI / 180.0);
                 targetPos.angle = angle;
@@ -130,12 +141,23 @@ namespace greatapi {
                     pros::delay(50);
                 }
 
-                voltageCap = moveVoltCap;
                 rotVCap = moveRotVoltCap;
 
                 PAngle->factor = kPAngle;
-                IAngle = new greatapi::Integral(kIAngle, std::pair(1000, -1000));           
+                IAngle = new greatapi::Integral(kIAngle, std::pair(1000, -1000));
+                DAngle->factor = kDAngle;
+
                 return;
+            }
+
+            /**
+            * rotates the bot to the specified absolute heading. Blocks execution until the bot is at the specified heading.
+            * 
+            * \param angle the absolute heading to rotate to. Clockwise is positive, counter-clockwise is negative
+            * \param errorStop DEGREES the function will stop the bot if the error is greater than the error threshold. IF 0, default is 2 degrees
+            */
+            void rotate(double angleDeg, double errorStop) {
+                rotate(angleDeg, errorStop, rotateVoltCap);
             }
 
             /**
@@ -164,7 +186,7 @@ namespace greatapi {
                 rotVCap = rotateVoltCap;
 
                 total_error = sqrt(pow(targetPos.x - curPos.x, 2) + pow(targetPos.y - curPos.y, 2));
-                overRideHeading = true;
+                overRideHeading = false;
                 if (reverseDrive) targetPos.angle = greatapi::SRAD(atan2(targetPos.y - curPos.y, targetPos.x - curPos.x) + PI / 2);
                 else targetPos.angle = greatapi::SRAD(atan2(targetPos.y - curPos.y, targetPos.x - curPos.x) - PI / 2);
 

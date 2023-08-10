@@ -2,13 +2,10 @@
 #include <utility>
 #include <vector>
 #include "node.hpp"
+#include "config.hpp"
 
 #ifndef TARGET_HPP
 #define TARGET_HPP
-
-#define visionRadiusM 15
-#define headStartM 20
-#define velocityM 10
 
 namespace purePursuit {
 

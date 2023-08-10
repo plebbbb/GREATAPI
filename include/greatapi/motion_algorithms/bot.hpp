@@ -8,14 +8,10 @@
 #include "greatapi/basic_datatypes.hpp"
 #include "greatapi/purePursuit/purePursuit.hpp"
 #include "greatapi/control_loops/control_loops.hpp"
-#include "main.h"
+#include "config.hpp"
 
 namespace greatapi {
     namespace motion {
-
-        #define rotateVoltCap 12000
-        #define moveRotVoltCap 6000
-        #define moveVoltCap 10000
 
         struct bot {
             odometry::odometry* odom;
@@ -46,6 +42,11 @@ namespace greatapi {
                 return sqrt(pow(curPos.x.value - target.xPos, 2) + pow(curPos.y.value - target.yPos, 2));
             }
 
+            /**
+             * @brief Calibrates all sensors needed for odometry/position control. 
+             * Call this function in initalize(). If IMU odom is used, this will block execution for 2 seconds.
+             * 
+             */
             void calibrate() {
                 odom->rotationcalc->calibrate();
                 odom->tare();
@@ -59,6 +60,7 @@ namespace greatapi {
 
             /**
              * @brief Initializes the Bot object for use. Takes the starting orientation of the bot in RADIANS, CW is positive.
+             * Run this part at the start of your autonomous routine.
              * 
              * @param startOrientation 
              */
